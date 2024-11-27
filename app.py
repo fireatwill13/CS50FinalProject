@@ -18,7 +18,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///finance.db")
+# db = SQL("sqlite:///finance.db")
 
 
 @app.after_request
@@ -132,9 +132,9 @@ def login():
             return apology("must provide password", 403)
 
         # Query database for username
-        rows = db.execute(
-            "SELECT * FROM users WHERE username = ?", request.form.get("username")
-        )
+        # rows = db.execute(
+         #   "SELECT * FROM users WHERE username = ?", request.form.get("username")
+        #)
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(
@@ -295,3 +295,7 @@ def change_password():
         flash("Password changed successfully!")
         # Redirect user back to home page
         return redirect("/")
+    
+
+if __name__ == "__main__":
+    app.run(debug=True)
