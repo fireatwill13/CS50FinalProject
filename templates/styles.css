@@ -142,3 +142,129 @@ body {
 .login-box a:hover {
     text-decoration: underline;
 }
+
+/* General Styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Rotating Background Collage */
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: url('/templates/image1.jpg') center/cover no-repeat;
+    animation: rotateBackground 9s infinite;
+}
+
+@keyframes rotateBackground {
+    0% { background: url('/templates/image1.jpg') center/cover no-repeat; }
+    33% { background: url('/templates/image2.jpg') center/cover no-repeat; }
+    66% { background: url('/templates/image3.jpg') center/cover no-repeat; }
+    100% { background: url('/templates/image1.jpg') center/cover no-repeat; }
+}
+
+/* Container and Typewriter Effect */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    color: #333;
+}
+
+.typewriter {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin-bottom: 20px;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 3px solid #ffffff;
+    width: fit-content;
+    animation: typing 3s steps(22), blink 0.5s step-end infinite alternate;
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 20ch; }
+}
+
+@keyframes blink {
+    from { border-color: transparent; }
+    to { border-color: #ffffff; }
+}
+
+/* Registration Box */
+.register-box {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 2em;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 400px;
+    max-width: 90%;
+}
+
+.register-box h2 {
+    margin-bottom: 20px;
+    font-size: 1.8em;
+    color: #2b6777;
+}
+
+.register-box form {
+    display: flex;
+    flex-direction: column;
+}
+
+.register-box input {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.register-box button {
+    background-color: #2b6777;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.register-box button:hover {
+    background-color: #1f4c5e;
+}
+
+.register-box p {
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.register-box a {
+    color: #2b6777;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.register-box a:hover {
+    text-decoration: underline;
+}
