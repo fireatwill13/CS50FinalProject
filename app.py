@@ -4,7 +4,7 @@ from flask_session import Session
 from datetime import datetime
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helper import apology, login_required, lookup, usd
+from helpers import apology, login_required, lookup, usd
 
 # Configure application
 app = Flask(__name__)
@@ -19,6 +19,43 @@ Session(app)
 
 # Configure CS50 Library to use SQLite database
 # db = SQL("sqlite:///finance.db")
+
+
+#Configure register
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    """Register user"""
+
+    # Check if the user has inputted username, password, and confirmation and that the password and confirmation match
+    if request.method == "GET":
+        return render_template("register.html")
+    '''if not request.form.get("username"):
+        return apology("missing username")
+    elif not request.form.get("password"):
+        return apology("missing password")
+    elif not request.form.get("confirmation"):
+        return apology("missing passowrd confirmation")
+    elif request.form.get("confirmation") != request.form.get("password"):
+        return apology("passwords don't match")
+        '''
+    # Try to insert username with the hashed password if not already taken by someone else
+    try:
+        db.execute("INSERT INTO users(username, hash) VALUES (?,?)",
+                   request.form.get("username"), generate_password_hash(request.form.get("password")))
+
+    except ValueError:
+        return apology("username taken")
+
+    # Set unique session id
+    session["user_id"] = db.execute(
+        "SELECT id FROM users WHERE username = ?", request.form.get("username"))[0]["id"]
+
+    # Flash the word registered to indicate user has successful registered
+    flash("Registered")
+
+    # Take user back to the login page
+    return redirect("/login")
+
 
 
 @app.after_request
@@ -182,40 +219,6 @@ def quote():
             return apology("Invalid stock symbol")
         # Display quoted HTML, passing stockInformation as an argument
         return render_template("quoted.html", stockInformation=stockInformation)
-
-
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    """Register user"""
-
-    # Check if the user has inputted username, password, and confirmation and that the password and confirmation match
-    if request.method == "GET":
-        return render_template("register.html")
-    if not request.form.get("username"):
-        return apology("missing username")
-    elif not request.form.get("password"):
-        return apology("missing password")
-    elif not request.form.get("confirmation"):
-        return apology("missing passowrd confirmation")
-    elif request.form.get("confirmation") != request.form.get("password"):
-        return apology("passwords don't match")
-    # Try to insert username with the hashed password if not already taken by someone else
-    try:
-        db.execute("INSERT INTO users(username, hash) VALUES (?,?)",
-                   request.form.get("username"), generate_password_hash(request.form.get("password")))
-
-    except ValueError:
-        return apology("username taken")
-
-    # Set unique session id
-    session["user_id"] = db.execute(
-        "SELECT id FROM users WHERE username = ?", request.form.get("username"))[0]["id"]
-
-    # Flash the word registered to indicate user has successful registered
-    flash("Registered")
-
-    # Take user back to the login page
-    return redirect("/login")
 
 
 @app.route("/sell", methods=["GET", "POST"])
