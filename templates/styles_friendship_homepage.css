@@ -1,0 +1,87 @@
+/* General Styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background: url('image1.jpg') no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+}
+
+/* Typewriter Effect for Brand Name */
+h1 {
+    font-weight: bold;
+    font-size: 2em;
+    white-space: nowrap;
+    overflow: hidden;
+    border-right: 3px solid #333;
+    width: fit-content;
+    animation: typing 3s steps(30, end), blink 0.7s step-end infinite;
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 16ch; }
+}
+
+@keyframes blink {
+    from { border-color: transparent; }
+    to { border-color: #333; }
+}
+
+.btn-hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 25px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.btn-hamburger .bar {
+    background-color: black;
+    height: 3px;
+    width: 100%;
+    border-radius: 3px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Hamburger Effect */
+.btn-hamburger.active .bar:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.btn-hamburger.active .bar:nth-child(2) {
+    opacity: 0;
+}
+
+.btn-hamburger.active .bar:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+/* Dropdown */
+#menu {
+    display: none;
+    position: absolute;
+    right: 15px;
+    top: 60px;
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    z-index: 1000;
+}
+
+#menu.show {
+    display: block;
+}
+
+.dropdown-item {
+    padding: 10px 20px;
+    color: black;
+    text-decoration: none;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+}
