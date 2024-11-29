@@ -40,7 +40,7 @@ def register():
         '''
     # Try to insert username with the hashed password if not already taken by someone else
     try:
-        db.execute("INSERT INTO users(username, hash) VALUES (?,?)",
+        db.execute("INSERT INTO users(username, password_hashed) VALUES (?,?)",
                    request.form.get("username"), generate_password_hash(request.form.get("password")))
 
     except ValueError:
@@ -55,6 +55,48 @@ def register():
 
     # Take user back to the login page
     return redirect("/login")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Log user in"""
+
+    # Forget any user_id
+    session.clear()
+
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+        # Ensure username was submitted
+        '''if not request.form.get("username"):
+            return apology("must provide username", 403)
+
+        # Ensure password was submitted
+        elif not request.form.get("password"):
+            return apology("must provide password", 403)
+        '''
+        # Query database for username
+        # rows = db.execute(
+         #   "SELECT * FROM users WHERE username = ?", request.form.get("username")
+        #)
+
+        # Ensure username exists and password is correct
+        #built in function for check password and hash password 
+        username = request.form.get('username')
+        password = request.form.get('password')
+        if len(rows) != 1:
+            return render_template('login.html', error_message = "Invalid Username")
+        elif not check_password_hash(
+            rows[0]["password_hashed"], request.form.get("password")
+        ):
+            return render_template('login.html', error_message = "Invalid Password") 
+        # Remember which user has logged in
+        session["user_id"] = rows[0]["id"]
+
+        # Redirect user to home page
+        return redirect("/")
+
+    # User reached route via GET (as by clicking a link or via redirect)
+    else:
+        return render_template("login.html")
 
 
 
@@ -150,44 +192,6 @@ def history():
     # Display History HTML File
     return render_template("history.html", stocks=stocks)
 
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    """Log user in"""
-
-    # Forget any user_id
-    session.clear()
-
-    # User reached route via POST (as by submitting a form via POST)
-    if request.method == "POST":
-        # Ensure username was submitted
-        if not request.form.get("username"):
-            return apology("must provide username", 403)
-
-        # Ensure password was submitted
-        elif not request.form.get("password"):
-            return apology("must provide password", 403)
-
-        # Query database for username
-        # rows = db.execute(
-         #   "SELECT * FROM users WHERE username = ?", request.form.get("username")
-        #)
-
-        # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(
-            rows[0]["hash"], request.form.get("password")
-        ):
-            return apology("invalid username and/or password", 403)
-
-        # Remember which user has logged in
-        session["user_id"] = rows[0]["id"]
-
-        # Redirect user to home page
-        return redirect("/")
-
-    # User reached route via GET (as by clicking a link or via redirect)
-    else:
-        return render_template("login.html")
 
 
 @app.route("/logout")
