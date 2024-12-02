@@ -1,4 +1,10 @@
 import os
+import sqlite3
+
+def get_db_connection():
+    conn = sqlite3.connect("data.db")
+    conn.row_factoruy = sqlite3.Row
+    return conn
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from datetime import datetime
@@ -18,7 +24,9 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configure CS50 Library to use SQLite database
-# db = SQL("sqlite:///finance.db")
+
+conn = get_db_connection()
+rows = conn.execute()
 
 
 #Configure register
@@ -304,5 +312,7 @@ def change_password():
         return redirect("/")
     
 
+
+conn.close()
 if __name__ == "__main__":
     app.run(debug=True)
