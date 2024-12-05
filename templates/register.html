@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Friendship Manager - Register</title>
-    <link rel="stylesheet" href="/static/styles_register.css">
+    <link rel="stylesheet" href="styles_register.css">
 </head>
 <body>
     <div class="background"></div>
@@ -18,10 +18,50 @@
                 <input type="email" placeholder="Email" required>
                 <input type="password" placeholder="Password" required>
                 <input type="password" placeholder="Confirm Password" required>
-                <input type="text" placeholder="Time Zone" required>
+
+                <!-- Time Zone Dropdown -->
+                <div class="mb-3">
+                    <label for="timezoneDropdown" class="form-label"></label>
+                    <select class="form-select" id="timezoneDropdown" required>
+                        <option selected disabled value="">Time Zone</option>
+                        <option value="GMT">GMT</option>
+                        <option value="EST">Eastern Standard Time (EST)</option>
+                        <option value="CST">Central Standard Time (CST)</option>
+                        <option value="PST">Pacific Standard Time (PST)</option>
+                        <option value="IST">Indian Standard Time (IST)</option>
+                    </select>
+                </div>
+
+                <!-- Country Dropdown -->
+                <div class="mb-3">
+                    <label for="countryDropdown" class="form-label"></label>
+                    <select class="form-select" id="countryDropdown" required>
+                        <option selected disabled value="">Country</option>
+                        <option value="US">United States</option>
+                        <option value="CA">Canada</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="IN">India</option>
+                        <option value="AU">Australia</option>
+                    </select>
+                </div>
+
+                <!-- Language Dropdown -->
+                <div class="mb-3">
+                    <label for="languageDropdown" class="form-label"></label>
+                    <select class="form-select" id="languageDropdown" required>
+                        <option selected disabled value="">Language</option>
+                        <option value="en">English</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="zh">Chinese</option>
+                    </select>
+                </div>
+
+                <!-- <input type="text" placeholder="Time Zone" required>
                 <input type="text" placeholder="Location" required>
-                <input type="text" placeholder="Language" required>
-                <input type="date" placeholder="Birthday" required>
+                <input type="text" placeholder="Language" required> -->
+
                 <button type="submit">Register</button>
             </form>
             <p>Already have an account? <a href="/login">Log in</a></p>
