@@ -1,4 +1,10 @@
 import os
+import sqlite3
+
+def get_db_connection():
+    conn = sqlite3.connect("data.db")
+    conn.row_factory = sqlite3.Row
+    return conn
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from datetime import datetime
@@ -18,7 +24,8 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configure CS50 Library to use SQLite database
-# db = SQL("sqlite:///finance.db")
+
+conn = get_db_connection()
 
 
 #Configure register
@@ -82,7 +89,8 @@ def login():
         #built in function for check password and hash password 
         username = request.form.get('username')
         password = request.form.get('password')
-        if len(rows) != 1:
+        if rows[0] = db.execute(
+        "SELECT id FROM users WHERE username"):
             return render_template('login.html', error_message = "Invalid Username")
         elif not check_password_hash(
             rows[0]["password_hashed"], request.form.get("password")
@@ -304,5 +312,7 @@ def change_password():
         return redirect("/")
     
 
+
+conn.close()
 if __name__ == "__main__":
     app.run(debug=True)
