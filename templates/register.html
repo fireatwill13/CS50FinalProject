@@ -35,7 +35,7 @@
 
                 <!-- Time Zone Dropdown -->
                 <div class="mb-3">
-                    <label for="timezoneDropdown" class="form-label">Time Zone</label>
+                    <label for="timezoneDropdown" class="form-label"></label>
                     <select class="form-select" id="timezoneDropdown" name = "timezone" required>
                         <option value="" disabled selected>Select Time Zone</option>
                         <option value="GMT+0">GMT+0 (Greenwich Mean Time)</option>
@@ -68,7 +68,7 @@
 
                 <!-- Country Dropdown -->
                 <div class="mb-3">
-                    <label for="countryDropdown" class="form-label">Country</label>
+                    <label for="countryDropdown" class="form-label"></label>
                     <select class="form-select" id="countryDropdown" name = "country" required>
                         <option selected disabled value="">Select Country</option>
                     </select>
@@ -80,6 +80,12 @@
                     <select class="form-select" id="languageDropdown" name = "language" required>
                         <option selected disabled value="">Language</option>
                     </select>
+                </div>
+
+                <!-- Birthday Selection -->
+                <div class="mb-3">
+                    <label for="birthdayInput" class="form-label">Birthday</label>
+                    <input type="date" id="birthdayInput" name="birthday" class="form-control" required>
                 </div>
 
                 <button type="submit">Register</button>
