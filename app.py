@@ -68,7 +68,7 @@ def register():
     try:
         with conn:
             conn.execute(
-            "INSERT INTO users (first_name, last_name, username, password, email, timezone, language, location, birthday) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO users (first_name, last_name, username, password, email, timezone, language, location, birthday) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (first_name, last_name, username, hashed_password, email, timezone, language, location, birthday)
             ) #EDIT HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE
     except sqlite3.IntegrityError:
@@ -325,3 +325,4 @@ def change_password():
 conn.close()
 if __name__ == "__main__":
     app.run(debug=True)
+
