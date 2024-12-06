@@ -1,5 +1,5 @@
-import ssl
-import hashlib
+from werkzeug.security import generate_password_hash
 
-print(ssl.OPENSSL_VERSION)  # Should return OpenSSL 1.1.1 or later
-print(dir(hashlib))         # Check for 'scrypt' in the output
+password = "examplepassword"
+hashed = generate_password_hash(password, method='pbkdf2:sha256')
+print(hashed)

@@ -31,56 +31,59 @@ conn = get_db_connection()
 #Configure register
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    """Register user"""
-
-    # Check if the user has inputted username, password, and confirmation and that the password and confirmation match
     if request.method == "GET":
         return render_template("register.html")
 
+    # Form data
     first_name = request.form.get("first_name")
     last_name = request.form.get("last_name")
+    username = request.form.get("username")
     email = request.form.get("email")
     password = request.form.get("pw")
     confirm_password = request.form.get("confirm_pw")
-    username = request.form.get("username")
     timezone = request.form.get("timezone")
     language = request.form.get("language")
-    location = request.form.get("location")
+    location = request.form.get("country")
     birthday = request.form.get("birthday")
 
-    #check if the password matches confirm password
+    # Validate passwords
     if password != confirm_password:
-         return render_template("register.html", password_error="Passwords do not match")
-    # Hash the password
-    hashed_password = generate_password_hash(password)
+        return render_template("register.html", password_error="Passwords do not match")
 
-    # Check if the email is already registered, returns id if exist, returns none if it does not exist
-    user_email = conn.execute(
-        "SELECT id FROM users WHERE email = ?", (email,)).fetchone()
-    if not user_email:
-        return render_template("register.html", email_error="Email already exists")  #EDIT HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE
-    
-    user = conn.execute(
-        "SELECT id FROM users WHERE username = ?", (username,)).fetchone()
-    if not user:
-         return render_template("register.html", username_error="Username already exists") #EDIT HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE
-    
+    # Hash the password using pbkdf2:sha256
+    hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+
+    # Database connection
+    conn = get_db_connection()
+
+    # Check if email or username already exists
+    user_email = conn.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()
+    if user_email:
+        return render_template("register.html", email_error="Email already exists")
+
+    user = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+    if user:
+        return render_template("register.html", username_error="Username already exists")
+
+    # Insert user into database
     try:
         with conn:
             conn.execute(
-            "INSERT INTO users (first_name, last_name, username, password, email, timezone, language, location, birthday) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (first_name, last_name, username, hashed_password, email, timezone, language, location, birthday)
-            ) #EDIT HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE
+                """
+                INSERT INTO users (first_name, last_name, username, password, email, timezone, language, location, birthday)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (first_name, last_name, username, hashed_password, email, timezone, language, location, birthday)
+            )
     except sqlite3.IntegrityError:
-        return apology("Error during registration")
+        return render_template("register.html", general_error="Registration failed. Please try again.")
 
     # Retrieve the user's ID
-    
-    # Log in the user
-    session["user_id"] = user["id"]
+    new_user = conn.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()
+    session["user_id"] = new_user["id"]
 
-    # Flash success message and redirect to login
-    flash("Registered successfully")
+    # Flash success message
+    flash("Registered successfully!")
     return redirect("/login")
 
 
@@ -93,16 +96,20 @@ def login():
 
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
+        # Database connection
+        conn = get_db_connection()
 
-        #built in function for check password and hash password 
+        # Get form data
         username = request.form.get("username")
         password = request.form.get("password")
 
+        # Query user by username
         user = conn.execute(
             "SELECT * FROM users WHERE username = ?",
-            (username)
+            (username,)
         ).fetchone()
-    # Ensure user exists and password is correct
+
+        # Ensure user exists and password is correct
         if not user or not check_password_hash(user["password"], password):
             return render_template("login.html", error_message="Invalid username or password")
 
@@ -116,7 +123,6 @@ def login():
     return render_template("login.html")
 
 
-
 @app.after_request
 def after_request(response):
     """Ensure responses aren't cached"""
@@ -128,30 +134,9 @@ def after_request(response):
 
 @app.route("/")
 @login_required
-def index():
-    """Show portfolio of stocks"""
-    # select cash from users using the specific id tag that's generated when the user signs up; also to check if there are any missing users
-    rows = db.execute("SELECT cash FROM users where id = ?", session["user_id"])
-    if not rows:
-        return apology("missing user")
-
-    cash = rows[0]["cash"]
-    stocks = db.execute(
-        "SELECT symbol, SUM(shares) as totalShares FROM transactions WHERE user_id = ? GROUP by symbol HAVING SUM(shares) > 0", session["user_id"])
-    total = 0
-
-    # Lookup stock and calculating total with the total shares times the price, both set to float
-    for stock in stocks:
-        stock_quote = lookup(stock["symbol"])
-        total = float(stock["totalShares"]) * float(stock_quote["price"])
-        if not stock_quote:
-            # Skip this stock or handle the error
-            return apology("Stock Doesn't Exist")
-        stock["price"] = stock_quote["price"]
-        stock["total"] = float(stock["totalShares"]) * stock["price"]
-
-    # Display the Index html file for user, passing cash, stocks, and total as arguments for display
-    return render_template("index.html", cash=cash, stocks=stocks, total=total)
+def homepage():
+    
+    return render_template("friendship_homepage.html")
 
 
 @app.route("/buy", methods=["GET", "POST"])
