@@ -13,22 +13,17 @@
         <div class="register-box">
             <h2>Register</h2>
             <form>
-                <input type="text" placeholder="First Name" required>
-                <input type="text" placeholder="Last Name" required>
-                <input type="email" placeholder="Email" required>
-                <input type="password" placeholder="Password" required>
-                <input type="password" placeholder="Confirm Password" required>
+                <input type="text" name = "first name"placeholder="First Name" required>
+                <input type="text" name = "last name" placeholder="Last Name" required>
+                <input type="email" name = "email" placeholder="Email" required>
+                <input type="password" name = "pw" placeholder="Password" required>
+                <input type="password" name = "confirm pw" placeholder="Confirm Password" required>
 
                 <!-- Time Zone Dropdown -->
                 <div class="mb-3">
-                    <label for="timezoneDropdown" class="form-label"></label>
+                    <label for="timezoneDropdown" class="form-label">Time Zone</label>
                     <select class="form-select" id="timezoneDropdown" required>
-                        <option selected disabled value="">Time Zone</option>
-                        <option value="GMT">GMT</option>
-                        <option value="EST">Eastern Standard Time (EST)</option>
-                        <option value="CST">Central Standard Time (CST)</option>
-                        <option value="PST">Pacific Standard Time (PST)</option>
-                        <option value="IST">Indian Standard Time (IST)</option>
+                        <option selected disabled value="">Select Time Zone</option>
                     </select>
                 </div>
 
@@ -68,4 +63,19 @@
         </div>
     </div>
 </body>
+<script>
+    // List of all time zones
+    const timeZones = Intl.supportedValuesOf('timeZone'); // Fetches all supported time zones
+
+    // Reference to the dropdown
+    const timezoneDropdown = document.getElementById('timezoneDropdown');
+
+    // Populate dropdown with time zones
+    timeZones.forEach(zone => {
+        const option = document.createElement('option');
+        option.value = zone;
+        option.textContent = zone;
+        timezoneDropdown.appendChild(option);
+    });
+</script>
 </html>

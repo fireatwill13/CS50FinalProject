@@ -1,0 +1,3 @@
+-- database: /Users/anthonyshen/CS50FinalProject/data.db
+
+SELECT * FROM calendars;
