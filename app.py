@@ -133,23 +133,22 @@ def create_connection():
 
     # Get the recipient username from the form
     connection_name = request.form.get("connection_name")
-
+    connections = conn.execute(
+                """
+                SELECT 
+                    CASE 
+                        WHEN creator_id = ? THEN recipient_username 
+                        ELSE creator_username 
+                    END AS name, 
+                    time_created 
+                FROM friendships
+                WHERE creator_id = ? OR recipient_id = ?
+                ORDER BY time_created DESC
+                """,
+                (creator_id, creator_id, creator_id)
+        ).fetchall()
     # Check if the connection name is provided
     if not connection_name:
-        connections = conn.execute(
-            """
-            SELECT 
-                CASE 
-                    WHEN creator_id = ? THEN recipient_username 
-                    ELSE creator_username 
-                END AS name, 
-                time_created 
-            FROM friendships
-            WHERE creator_id = ? OR recipient_id = ?
-            ORDER BY time_created DESC
-            """,
-            (creator_id, creator_id, creator_id)
-        ).fetchall()
         return render_template("friendship_homepage.html", connections=connections, connection_error="Please enter a connection name.")
 
     # Check if the recipient user exists
@@ -157,22 +156,10 @@ def create_connection():
         "SELECT id, username FROM users WHERE username = ?",
         (connection_name,)
     ).fetchone()
+    if connection_name == creator_username:
+        return render_template("friendship_homepage.html", connections=connections, connection_error="You cannot create a connection with yourself.")
 
     if not recipient:
-        connections = conn.execute(
-            """
-            SELECT 
-                CASE 
-                    WHEN creator_id = ? THEN recipient_username 
-                    ELSE creator_username 
-                END AS name, 
-                time_created 
-            FROM friendships
-            WHERE creator_id = ? OR recipient_id = ?
-            ORDER BY time_created DESC
-            """,
-            (creator_id, creator_id, creator_id)
-        ).fetchall()
         return render_template("friendship_homepage.html", connections=connections, recipient_error="Username does not exist.")
 
     recipient_id = recipient["id"]
@@ -189,20 +176,6 @@ def create_connection():
     ).fetchone()
 
     if existing_friendship:
-        connections = conn.execute(
-            """
-            SELECT 
-                CASE 
-                    WHEN creator_id = ? THEN recipient_username 
-                    ELSE creator_username 
-                END AS name, 
-                time_created 
-            FROM friendships
-            WHERE creator_id = ? OR recipient_id = ?
-            ORDER BY time_created DESC
-            """,
-            (creator_id, creator_id, creator_id)
-        ).fetchall()
         return render_template("friendship_homepage.html", connections=connections, friendship_error="Friendship already exists.")
 
     # Create the friendship
@@ -218,8 +191,6 @@ def create_connection():
         return render_template("friendship_homepage.html", connections=connections, confirmation_message="Friendship Successfully Created!")
     except sqlite3.IntegrityError:
         return redirect("/")
-
-    return redirect("/")
 
 @app.after_request
 def after_request(response):
