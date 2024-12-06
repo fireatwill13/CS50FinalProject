@@ -42,23 +42,28 @@ def register():
     email = request.form.get('email')
     password = request.form.get('pw')
     confirm_password = request.form.get('confirm pw')
-    
-    timezone = request.form.get("timezone")
-    language = request.form.get("language")
-    location = request.form.get("location")
-    birthday = request.form.get("birthday")
+    username = request.form.get('username')
+    timezone = request.form.get('timezone')
+    language = request.form.get('language')
+    location = request.form.get('location')
+    birthday = request.form.get('birthday')
 
     #check if the password matches confirm password
     if password != confirm_password:
-        return apology("Passwords do not match")
+         return render_template("register.html", password_error="Passwords do not match")
     # Hash the password
     hashed_password = generate_password_hash(password)
 
     # Check if the email is already registered, returns id if exist, returns none if it does not exist
-    existing_user = conn.execute(
+    user_email = conn.execute(
         "SELECT id FROM users WHERE email = ?", (email,)).fetchone()
-    if existing_user:
-        return "jinja part" #EDIT HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE
+    if not user_email:
+        return render_template("register.html", email_error="Email already exists")  #EDIT HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE
+    
+    user = conn.execute(
+        "SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+    if not user:
+         return render_template("register.html", username_error="Username already exists") #EDIT HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE
     
     try:
         with conn:
@@ -70,11 +75,6 @@ def register():
         return apology("Error during registration")
 
     # Retrieve the user's ID
-    user = conn.execute(
-        "SELECT id FROM users WHERE email = ?", (email,)
-    ).fetchone()
-    if not user:
-        return "jinja part" #EDIT HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE
     
     # Log in the user
     session["user_id"] = user["id"]
@@ -93,39 +93,27 @@ def login():
 
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-        # Ensure username was submitted
-        '''if not request.form.get("username"):
-            return apology("must provide username", 403)
 
-        # Ensure password was submitted
-        elif not request.form.get("password"):
-            return apology("must provide password", 403)
-        '''
-        # Query database for username
-        # rows = db.execute(
-         #   "SELECT * FROM users WHERE username = ?", request.form.get("username")
-        #)
-
-        # Ensure username exists and password is correct
         #built in function for check password and hash password 
-        username = request.form.get('username')
-        password = request.form.get('password')
-        #if rows[0] = db.execute(
-        #"SELECT id FROM users WHERE username"):
-        #return render_template('login.html', error_message = "Invalid Username")
-        if not check_password_hash(
-            rows[0]["password_hashed"], request.form.get("password")
-        ):
-            return render_template('login.html', error_message = "Invalid Password") 
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        user = conn.execute(
+            "SELECT * FROM users WHERE username = ?",
+            (username)
+        ).fetchone()
+    # Ensure user exists and password is correct
+        if not user or not check_password_hash(user["password"], password):
+            return render_template("login.html", error_message="Invalid username or password")
+
         # Remember which user has logged in
-        session["user_id"] = rows[0]["id"]
+        session["user_id"] = user["id"]
 
         # Redirect user to home page
         return redirect("/")
 
-    # User reached route via GET (as by clicking a link or via redirect)
-    else:
-        return render_template("login.html")
+    # User reached route via GET (e.g., clicking a link)
+    return render_template("login.html")
 
 
 
