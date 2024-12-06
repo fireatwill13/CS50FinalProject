@@ -89,10 +89,10 @@ def login():
         #built in function for check password and hash password 
         username = request.form.get('username')
         password = request.form.get('password')
-        if rows[0] = db.execute(
-        "SELECT id FROM users WHERE username"):
-            return render_template('login.html', error_message = "Invalid Username")
-        elif not check_password_hash(
+        #if rows[0] = db.execute(
+        #"SELECT id FROM users WHERE username"):
+        #return render_template('login.html', error_message = "Invalid Username")
+        if not check_password_hash(
             rows[0]["password_hashed"], request.form.get("password")
         ):
             return render_template('login.html', error_message = "Invalid Password") 
