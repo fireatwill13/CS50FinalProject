@@ -45,6 +45,13 @@ def register():
     elif request.form.get("confirmation") != request.form.get("password"):
         return apology("passwords don't match")
         '''
+    
+    username = request.form.get('username')
+    password = request.form.get('password')
+    confirmation = request.form.get('confirmation')
+    
+
+
     # Try to insert username with the hashed password if not already taken by someone else
     try:
         db.execute("INSERT INTO users(username, password_hashed) VALUES (?,?)",
