@@ -36,39 +36,53 @@ def register():
     # Check if the user has inputted username, password, and confirmation and that the password and confirmation match
     if request.method == "GET":
         return render_template("register.html")
-    '''if not request.form.get("username"):
-        return apology("missing username")
-    elif not request.form.get("password"):
-        return apology("missing password")
-    elif not request.form.get("confirmation"):
-        return apology("missing passowrd confirmation")
-    elif request.form.get("confirmation") != request.form.get("password"):
-        return apology("passwords don't match")
-        '''
     
-    username = request.form.get('username')
-    password = request.form.get('password')
-    confirmation = request.form.get('confirmation')
+    first_name = request.form.get('first name')
+    last_name = request.form.get('last_name')
+    email = request.form.get('email')
+    password = request.form.get('pw')
+    confirm_password = request.form.get('confirm pw')
     
+    timezone = request.form.get("timezone")
+    language = request.form.get("language")
+    location = request.form.get("location")
+    birthday = request.form.get("birthday")
 
+    #check if the password matches confirm password
+    if password != confirm_password:
+        return apology("Passwords do not match")
+    # Hash the password
+    hashed_password = generate_password_hash(password)
 
-    # Try to insert username with the hashed password if not already taken by someone else
+    # Check if the email is already registered, returns id if exist, returns none if it does not exist
+    existing_user = conn.execute(
+        "SELECT id FROM users WHERE email = ?", (email,)).fetchone()
+    if existing_user:
+        return "jinja part" #EDIT HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE
+    
     try:
-        db.execute("INSERT INTO users(username, password_hashed) VALUES (?,?)",
-                   request.form.get("username"), generate_password_hash(request.form.get("password")))
+        with conn:
+            conn.execute(
+            "INSERT INTO users (username, password, email, timezone, language, location, birthday) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (username, hashed_password, email, timezone, language, location, birthday)
+            ) #EDIT HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE
+    except sqlite3.IntegrityError:
+        return apology("Error during registration")
 
-    except ValueError:
-        return apology("username taken")
+    # Retrieve the user's ID
+    user = conn.execute(
+        "SELECT id FROM users WHERE email = ?", (email,)
+    ).fetchone()
+    if not user:
+        return "jinja part" #EDIT HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE
+    
+    # Log in the user
+    session["user_id"] = user["id"]
 
-    # Set unique session id
-    session["user_id"] = db.execute(
-        "SELECT id FROM users WHERE username = ?", request.form.get("username"))[0]["id"]
-
-    # Flash the word registered to indicate user has successful registered
-    flash("Registered")
-
-    # Take user back to the login page
+    # Flash success message and redirect to login
+    flash("Registered successfully")
     return redirect("/login")
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
