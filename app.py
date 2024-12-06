@@ -37,16 +37,16 @@ def register():
     if request.method == "GET":
         return render_template("register.html")
     
-    first_name = request.form.get('first_name')
-    last_name = request.form.get('last_name')
-    email = request.form.get('email')
-    password = request.form.get('pw')
-    confirm_password = request.form.get('confirm_pw')
-    username = request.form.get('username')
-    timezone = request.form.get('timezone')
-    language = request.form.get('language')
-    location = request.form.get('location')
-    birthday = request.form.get('birthday')
+    first_name = request.form.get("first_name")
+    last_name = request.form.get("last_name")
+    email = request.form.get("email")
+    password = request.form.get("pw")
+    confirm_password = request.form.get("confirm_pw")
+    username = request.form.get("username")
+    timezone = request.form.get("timezone")
+    language = request.form.get("language")
+    location = request.form.get("location")
+    birthday = request.form.get("birthday")
 
     #check if the password matches confirm password
     if password != confirm_password:
@@ -68,8 +68,8 @@ def register():
     try:
         with conn:
             conn.execute(
-            "INSERT INTO users (username, password, email, timezone, language, location, birthday) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (username, hashed_password, email, timezone, language, location, birthday)
+            "INSERT INTO users (first_name, last_name, username, password, email, timezone, language, location, birthday) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (first_name, last_name, username, hashed_password, email, timezone, language, location, birthday)
             ) #EDIT HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE
     except sqlite3.IntegrityError:
         return apology("Error during registration")
