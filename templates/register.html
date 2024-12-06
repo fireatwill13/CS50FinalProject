@@ -16,34 +16,55 @@
                 <input type="text" name = "first name"placeholder="First Name" required>
                 <input type="text" name = "last name" placeholder="Last Name" required>
                 <input type="email" name = "email" placeholder="Email" required>
+                <input type="text" name = "username" placeholder="Username" required>
                 <input type="password" name = "pw" placeholder="Password" required>
                 <input type="password" name = "confirm pw" placeholder="Confirm Password" required>
 
                 <!-- Time Zone Dropdown -->
                 <div class="mb-3">
                     <label for="timezoneDropdown" class="form-label">Time Zone</label>
-                    <select class="form-select" id="timezoneDropdown" required>
-                        <option selected disabled value="">Select Time Zone</option>
+                    <select class="form-select" id="timezoneDropdown" name = "timezone" required>
+                        <option value="" disabled selected>Select Time Zone</option>
+                        <option value="GMT+0">GMT+0 (Greenwich Mean Time)</option>
+                        <option value="GMT+1">GMT+1 (Central European Time)</option>
+                        <option value="GMT+2">GMT+2 (Eastern European Time)</option>
+                        <option value="GMT+3">GMT+3 (Moscow Time)</option>
+                        <option value="GMT+4">GMT+4 (Armenia Time)</option>
+                        <option value="GMT+5">GMT+5 (Pakistan Standard Time)</option>
+                        <option value="GMT+6">GMT+6 (Omsk Time)</option>
+                        <option value="GMT+7">GMT+7 (Krasnoyarsk Time)</option>
+                        <option value="GMT+8">GMT+8 (China Standard Time)</option>
+                        <option value="GMT+9">GMT+9 (Japan Standard Time)</option>
+                        <option value="GMT+10">GMT+10 (Eastern Australia Standard Time)</option>
+                        <option value="GMT+11">GMT+11 (Sakhalin Time)</option>
+                        <option value="GMT+12">GMT+12 (New Zealand Standard Time)</option>
+                        <option value="GMT-1">GMT-1 (West Africa Time)</option>
+                        <option value="GMT-2">GMT-2 (Azores Time)</option>
+                        <option value="GMT-3">GMT-3 (Argentina Time)</option>
+                        <option value="GMT-4">GMT-4 (Atlantic Standard Time)</option>
+                        <option value="GMT-5">GMT-5 (Eastern Standard Time)</option>
+                        <option value="GMT-6">GMT-6 (Central Standard Time)</option>
+                        <option value="GMT-7">GMT-7 (Mountain Standard Time)</option>
+                        <option value="GMT-8">GMT-8 (Pacific Standard Time)</option>
+                        <option value="GMT-9">GMT-9 (Alaska Standard Time)</option>
+                        <option value="GMT-10">GMT-10 (Hawaii Standard Time)</option>
+                        <option value="GMT-11">GMT-11 (Nome Time)</option>
+                        <option value="GMT-12">GMT-12 (International Date Line West)</option> 
                     </select>
                 </div>
 
                 <!-- Country Dropdown -->
                 <div class="mb-3">
-                    <label for="countryDropdown" class="form-label"></label>
-                    <select class="form-select" id="countryDropdown" required>
-                        <option selected disabled value="">Country</option>
-                        <option value="US">United States</option>
-                        <option value="CA">Canada</option>
-                        <option value="GB">United Kingdom</option>
-                        <option value="IN">India</option>
-                        <option value="AU">Australia</option>
+                    <label for="countryDropdown" class="form-label">Country</label>
+                    <select class="form-select" id="countryDropdown" name = "country" required>
+                        <option selected disabled value="">Select Country</option>
                     </select>
                 </div>
 
                 <!-- Language Dropdown -->
                 <div class="mb-3">
                     <label for="languageDropdown" class="form-label"></label>
-                    <select class="form-select" id="languageDropdown" required>
+                    <select class="form-select" id="languageDropdown" name = "language" required>
                         <option selected disabled value="">Language</option>
                         <option value="en">English</option>
                         <option value="es">Spanish</option>
@@ -64,18 +85,25 @@
     </div>
 </body>
 <script>
-    // List of all time zones
-    const timeZones = Intl.supportedValuesOf('timeZone'); // Fetches all supported time zones
+document.addEventListener('DOMContentLoaded', () => {
+    const countryDropdown = document.getElementById('countryDropdown');
 
-    // Reference to the dropdown
-    const timezoneDropdown = document.getElementById('timezoneDropdown');
-
-    // Populate dropdown with time zones
-    timeZones.forEach(zone => {
-        const option = document.createElement('option');
-        option.value = zone;
-        option.textContent = zone;
-        timezoneDropdown.appendChild(option);
-    });
+    // Fetch country data from REST Countries API
+    fetch('https://restcountries.com/v3.1/all')
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            data.sort((a, b) => (a.name?.common || '').localeCompare(b.name?.common || '')); // Sort alphabetically
+            data.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country.cca2; // ISO 3166-1 alpha-2 code
+                option.textContent = country.name.common; // Country name
+                countryDropdown.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching countries:', error));
+});
 </script>
 </html>
