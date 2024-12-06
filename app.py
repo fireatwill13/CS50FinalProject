@@ -37,11 +37,11 @@ def register():
     if request.method == "GET":
         return render_template("register.html")
     
-    first_name = request.form.get('first name')
+    first_name = request.form.get('first_name')
     last_name = request.form.get('last_name')
     email = request.form.get('email')
     password = request.form.get('pw')
-    confirm_password = request.form.get('confirm pw')
+    confirm_password = request.form.get('confirm_pw')
     username = request.form.get('username')
     timezone = request.form.get('timezone')
     language = request.form.get('language')
