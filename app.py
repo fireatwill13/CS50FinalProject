@@ -36,7 +36,7 @@ def register():
     # Check if the user has inputted username, password, and confirmation and that the password and confirmation match
     if request.method == "GET":
         return render_template("register.html")
-    
+
     first_name = request.form.get("first_name")
     last_name = request.form.get("last_name")
     email = request.form.get("email")
