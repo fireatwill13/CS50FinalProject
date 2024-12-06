@@ -42,23 +42,28 @@ def register():
     email = request.form.get('email')
     password = request.form.get('pw')
     confirm_password = request.form.get('confirm pw')
-    
-    timezone = request.form.get("timezone")
-    language = request.form.get("language")
-    location = request.form.get("location")
-    birthday = request.form.get("birthday")
+    username = request.form.get('username')
+    timezone = request.form.get('timezone')
+    language = request.form.get('language')
+    location = request.form.get('location')
+    birthday = request.form.get('birthday')
 
     #check if the password matches confirm password
     if password != confirm_password:
-        return apology("Passwords do not match")
+         return render_template("register.html", password_error="Passwords do not match")
     # Hash the password
     hashed_password = generate_password_hash(password)
 
     # Check if the email is already registered, returns id if exist, returns none if it does not exist
-    user = conn.execute(
+    user_email = conn.execute(
         "SELECT id FROM users WHERE email = ?", (email,)).fetchone()
-    if user:
-        return "jinja part" #EDIT HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE
+    if not user_email:
+        return render_template("register.html", email_error="Email already exists")  #EDIT HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE
+    
+    user = conn.execute(
+        "SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+    if not user:
+         return render_template("register.html", username_error="Username already exists") #EDIT HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE
     
     try:
         with conn:
