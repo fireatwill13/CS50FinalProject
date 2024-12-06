@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Friendship Manager - Register</title>
     <link rel="stylesheet" href="/static/styles_register.css">
+    <style>
+        /* Ensure scrolling is enabled */
+        body, html {
+            overflow-y: auto;
+            height: auto;
+        }
+    </style>
 </head>
 <body>
     <div class="background"></div>
@@ -74,12 +81,10 @@
                     </select>
                 </div>
 
-                <!-- Language Dropdown -->
+                <!-- Google Translate Widget -->
                 <div class="mb-3">
-                    <label for="languageDropdown" class="form-label">Language</label>
-                    <select class="form-select" id="languageDropdown" name = "language" required>
-                        <option selected disabled value="">Language</option>
-                    </select>
+                    <label class="form-label">Translate Page</label>
+                    <div id="google_translate_element"></div>
                 </div>
 
                 <!-- Birthday Selection -->
@@ -115,31 +120,19 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => console.error('Error fetching countries:', error));
 });
- // Fetch the list of languages and populate the dropdown
- fetch('https://restcountries.com/v3.1/all') // Use the REST Countries API
-            .then(response => response.json())
-            .then(data => {
-                const languagesSet = new Set(); // To store unique languages
-                data.forEach(country => {
-                    if (country.languages) {
-                        Object.values(country.languages).forEach(language => {
-                            languagesSet.add(language);
-                        });
-                    }
-                });
-
-                // Sort the languages alphabetically
-                const sortedLanguages = Array.from(languagesSet).sort();
-
-                // Populate the dropdown
-                const languageDropdown = document.getElementById('languageDropdown');
-                sortedLanguages.forEach(language => {
-                    const option = document.createElement('option');
-                    option.value = language;
-                    option.textContent = language;
-                    languageDropdown.appendChild(option);
-                });
-            })
-            .catch(error => console.error('Error fetching languages:', error));
 </script>
+<!-- Google Translate Script -->
+<script type="text/javascript">
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement(
+            {
+                pageLanguage: 'en',
+                includedLanguages: 'es,fr,de',
+                autoDisplay: false
+            },
+            'google_translate_element'
+        );
+    }
+</script>
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </html>
