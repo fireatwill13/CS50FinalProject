@@ -15,10 +15,23 @@
             <form>
                 <input type="text" name = "first name"placeholder="First Name" required>
                 <input type="text" name = "last name" placeholder="Last Name" required>
-                <input type="email" name = "email" placeholder="Email" required>
-                <input type="text" name = "username" placeholder="Username" required>
-                <input type="password" name = "pw" placeholder="Password" required>
-                <input type="password" name = "confirm pw" placeholder="Confirm Password" required>
+                <!-- Username Field -->
+                <input type="text" name="username" placeholder="Username" required>
+                {% if username_error %}
+                <p class="error">{{ username_error }}</p>
+                {% endif %}
+
+                <!-- Email Field -->
+                <input type="email" name="email" placeholder="Email" required>
+                {% if email_error %}
+                <p class="error">{{ email_error }}</p>
+                {% endif %}
+                <!-- Password Fields -->
+                <input type="password" name="pw" placeholder="Password" required>
+                <input type="password" name="confirm_pw" placeholder="Confirm Password" required>
+                {% if password_error %}
+                <p class="error">{{ password_error }}</p> 
+                {% endif %}
 
                 <!-- Time Zone Dropdown -->
                 <div class="mb-3">
@@ -66,17 +79,8 @@
                     <label for="languageDropdown" class="form-label"></label>
                     <select class="form-select" id="languageDropdown" name = "language" required>
                         <option selected disabled value="">Language</option>
-                        <option value="en">English</option>
-                        <option value="es">Spanish</option>
-                        <option value="fr">French</option>
-                        <option value="de">German</option>
-                        <option value="zh">Chinese</option>
                     </select>
                 </div>
-
-                <!-- <input type="text" placeholder="Time Zone" required>
-                <input type="text" placeholder="Location" required>
-                <input type="text" placeholder="Language" required> -->
 
                 <button type="submit">Register</button>
             </form>
@@ -105,5 +109,31 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => console.error('Error fetching countries:', error));
 });
+ // Fetch the list of languages and populate the dropdown
+ fetch('https://restcountries.com/v3.1/all') // Use the REST Countries API
+            .then(response => response.json())
+            .then(data => {
+                const languagesSet = new Set(); // To store unique languages
+                data.forEach(country => {
+                    if (country.languages) {
+                        Object.values(country.languages).forEach(language => {
+                            languagesSet.add(language);
+                        });
+                    }
+                });
+
+                // Sort the languages alphabetically
+                const sortedLanguages = Array.from(languagesSet).sort();
+
+                // Populate the dropdown
+                const languageDropdown = document.getElementById('languageDropdown');
+                sortedLanguages.forEach(language => {
+                    const option = document.createElement('option');
+                    option.value = language;
+                    option.textContent = language;
+                    languageDropdown.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching languages:', error));
 </script>
 </html>
