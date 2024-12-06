@@ -122,6 +122,34 @@ def login():
     # User reached route via GET (e.g., clicking a link)
     return render_template("login.html")
 
+@app.route("/create-connection", methods=["POST"])
+@login_required
+def create_connection():
+    """Handle new connection creation."""
+    connection_name = request.form.get("connection_name")
+    if not connection_name:
+        flash("Connection name is required.")
+        return redirect("/")
+
+    # Format the name for storage or display
+    formatted_name = connection_name.strip().lower().replace(" ", "-")
+    user_id = session["user_id"]
+    created_date = datetime.now().strftime("%Y-%m-%d")
+
+    # Save to database
+    try:
+        with conn:
+            conn.execute(
+                "INSERT INTO connections (user_id, name, created_date) VALUES (?, ?, ?)",
+                (user_id, formatted_name, created_date)
+            )
+        flash("Connection created successfully!")
+    except sqlite3.Error as e:
+        flash(f"Error creating connection: {e}")
+
+    return redirect("/")
+
+
 
 @app.after_request
 def after_request(response):
