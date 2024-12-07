@@ -6,8 +6,42 @@
     <title>Friendship Manager - Login</title>
     <link rel="stylesheet" href="/static/styles_login.css">
 </head>
+<style>
+    /* Styling for the Google Translate box */
+    .translate-box {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        background: #f8f9fa;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .translate-box h4 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    #google_translate_element select {
+        margin-top: 5px;
+        width: 100%;
+    }
+</style>
 <body>
     <div class="background"></div>
+    <div class="background"></div>
+
+    <!-- Google Translate Box -->
+    <div class="translate-box">
+        <h4>Translate</h4>
+        <div id="google_translate_element"></div>
+    </div>
+
     <div class="container">
         <h1 class="typewriter">Friendship Manager</h1>
         <div class="login-box">
@@ -38,5 +72,16 @@
             <p>Don't have an account? <a href="/register">Register</a></p>
         </div>
     </div>
+    <!-- Google Translate Script -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',  // The original language of the page
+                includedLanguages: 'es,fr,de',  // Spanish, French, German
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
