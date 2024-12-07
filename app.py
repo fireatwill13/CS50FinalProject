@@ -1,11 +1,10 @@
 import os
 import sqlite3
-
 def get_db_connection():
     conn = sqlite3.connect("data.db")
     conn.row_factory = sqlite3.Row
     return conn
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_session import Session
 from datetime import datetime
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -235,143 +234,47 @@ def homepage():
 
 
 #Redirect to friendship_hub per the unique connection id from person
+
 @app.route("/friendship_hub/<int:connection_id>", methods=["GET", "POST"])
 @login_required
 def friendship_hub(connection_id):
-    print(f"Accessed friendship_hub with connection_id: {connection_id}")  # Debugging output
-    return render_template("friendship_hub.html", connection_id=connection_id)
+    conn = get_db_connection()
 
+    # Fetch existing events for the specified friendship connection
+    events = conn.execute(
+        "SELECT event_name, event_date FROM calendars WHERE friendship_id = ?",
+        (connection_id,)
+    ).fetchall()
 
+    # Handle adding a new event via POST request
+    if request.method == "POST":
+        event_name = request.form.get("event_details")
+        event_date = request.form.get("event_date")
 
-@app.route("/buy", methods=["GET", "POST"])
-@login_required
-def buy():
-    """Buy shares of stock"""
+        print(f"Event Name: {event_name}, Event Date: {event_date}")  # Debugging
 
-    if request.method == "GET":
-        return render_template("buy.html")
-    else:
+        # Insert new event into the database
+        if event_name and event_date:
+            try:
+                with conn:
+                    conn.execute(
+                        """
+                        INSERT INTO calendars (friendship_id, event_name, event_date)
+                        VALUES (?, ?, ?)
+                        """,
+                        (connection_id, event_name, event_date)
+                    )
+                return redirect(url_for('friendship_hub', connection_id=connection_id))
+            except sqlite3.Error as e:
+                flash(f"Error adding event: {e}", "danger")
+                print(f"Database error: {e}")  # Debugging
 
-        # CHeck if symbol exists and if user did indeed enter a symbol. Also check if the amount entered is valid (positive integer)
-        if not request.form.get("symbol"):
-            return apology("Please input a stock symbol")
-        stockView = request.form.get("symbol")
-        stockInformation = lookup(stockView)
-        shares = request.form.get("shares")
-        if not stockInformation:
-            return apology("Invalid stock symbol")
-        if not shares or not shares.isdigit() or int(shares) <= 0:
-            return apology("Please input a positive integer")
-        # Declare and initiate variables to keep code more clean
-        shares = int(shares)
-        user_id = session["user_id"]
-        price = stockInformation["price"]
-        totalCost = shares*price
+    # Close the connection after processing
+    conn.close()
 
-        tableRows = db.execute("SELECT cash FROM users where id = ?", user_id)
+    # Return the friendship hub page with the events passed to Jinja
+    return render_template("friendship_hub.html", connection_id=connection_id, events=events)
 
-        # Get total for cash so code can compare the total cost to determine if the user has enough money
-        cash = tableRows[0]["cash"]
-        timeStamp = datetime.now()
-        if totalCost > cash:
-            return apology("NOT ENOUGH MONEY")
-
-        # Update tables with cash substracted from buying stock
-        db.execute("UPDATE users SET cash = cash - ? WHERE id = ?", totalCost, user_id)
-
-        db.execute("INSERT INTO transactions (user_id, symbol, shares, price, transacted) VALUES (?, ?, ?, ?, ?)",
-                   user_id, stockInformation["symbol"], shares, price, timeStamp)
-        # Redirect user back to home page
-        return redirect("/")
-
-
-@app.route("/history")
-@login_required
-def history():
-    """Show history of transactions"""
-
-    # Format and set the history page with symbol, price, and timestamps using datetime that was included in buy and sell function
-    stocks = db.execute("SELECT * FROM transactions WHERE user_id = ?", session["user_id"])
-    for stock in stocks:
-        stock_quote = lookup(stock["symbol"])
-        stock["price"] = stock_quote["price"]
-    # Display History HTML File
-    return render_template("history.html", stocks=stocks)
-
-
-
-@app.route("/logout")
-def logout():
-    """Log user out"""
-
-    # Forget any user_id
-    session.clear()
-
-    # Redirect user to login form
-    return redirect("/")
-
-
-@app.route("/quote", methods=["GET", "POST"])
-@login_required
-def quote():
-    """Get stock quote."""
-    if request.method == "GET":
-        # Display quote HTML
-        return render_template("quote.html")
-
-    else:
-        # View the stock using the loopup function from helper and ensure that the stock is not empty and is valid
-        stockView = request.form.get("symbol")
-        stockInformation = lookup(stockView)
-        if not stockView:
-            return apology("Please enter a stock")
-        elif not stockInformation:
-            return apology("Invalid stock symbol")
-        # Display quoted HTML, passing stockInformation as an argument
-        return render_template("quoted.html", stockInformation=stockInformation)
-
-
-@app.route("/sell", methods=["GET", "POST"])
-@login_required
-def sell():
-    """Sell shares of stock"""
-
-    user_id = session["user_id"]
-
-    if request.method == "GET":
-        # Select all symbols from transactions and pass it as an argument in the display of sell HTML
-        symbolRows = db.execute(
-            "SELECT symbol FROM transactions WHERE user_id = ? GROUP BY symbol HAVING SUM(shares) > 0", user_id)
-        return render_template("sell.html", symbolRows=symbolRows)
-    else:
-        # Call the lookup helper function, view the stock and set the number of shares to float
-        stockView = request.form.get("symbol")
-        stockInformation = lookup(stockView)
-        shares = float(request.form.get("shares"))
-        rows = db.execute(
-            "SELECT SUM(shares) as totalShares FROM transactions WHERE user_id = ? AND symbol = ?", user_id, stockView)
-        # Ensure that the user has selected proper stocks or has inputted a valid positive integer or has enough shares to actually sell
-        if not stockView:
-            return apology("Select a Stock to Sell Please")
-
-        if not shares or not shares.is_integer() or shares <= 0:
-            return apology("Please input a postive integer of shares you wish to sell")
-
-        if rows[0]["totalShares"] is None or rows[0]["totalShares"] < shares or len(rows) < 1:
-            return apology("Not Enough Shares of Stocks")
-
-        price = stockInformation["price"]
-        totalMade = shares*price
-
-        timeStamp = datetime.now()
-
-        # Update the user's new cash amount after selling stock and insert it into the transactions table in SQL
-        db.execute("UPDATE users SET cash = cash + ? WHERE id = ?", totalMade, user_id)
-
-        db.execute("INSERT INTO transactions (user_id, symbol, shares, price, transacted) VALUES (?, ?, ?, ?, ?)",
-                   user_id, stockInformation["symbol"], -1*shares, price, timeStamp)
-
-        return redirect("/")
 
 
 @app.route("/changePassword", methods=["GET", "POST"])
