@@ -1,0 +1,1 @@
+SELECT photo_url FROM images WHERE friendship_id = 

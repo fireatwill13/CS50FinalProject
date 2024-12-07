@@ -224,4 +224,45 @@ footer {
 .carousel-indicators {
     margin-bottom: 10px; /* Adjust spacing beneath indicators */
 }
+#imageModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    overflow-y: auto; /* Enable scrolling if necessary */
+}
 
+#imageModal div {
+    position: relative;
+    max-width: 75%;
+    margin: 40px auto 60px auto; /* Add space at the top and bottom */
+    text-align: center;
+}
+
+#zoomedImage {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+#imageModal button {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: red;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#imageModal button:hover {
+    background-color: darkred;
+}

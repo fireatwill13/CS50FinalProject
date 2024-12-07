@@ -8,7 +8,7 @@ from flask import Flask, flash, redirect, render_template, request, session, url
 from flask_session import Session
 from datetime import datetime
 from werkzeug.security import check_password_hash, generate_password_hash
-
+from werkzeug.utils import secure_filename
 from helpers import apology, login_required, lookup, usd
 
 # Configure application
@@ -246,14 +246,24 @@ def friendship_hub(connection_id):
         (connection_id,)
     ).fetchall()
 
+    # Fetch images for the friendship
+    images = conn.execute(
+        "SELECT photo_url FROM images WHERE friendship_id = ?",
+        (connection_id,)
+    ).fetchall()
+
+
+    # Fetch milestones for the friendship connection
+    milestones = conn.execute(
+        "SELECT id, milestone_name FROM milestones WHERE friendship_id = ?",
+        (connection_id,)
+    ).fetchall()
+
     # Handle adding a new event via POST request
     if request.method == "POST":
         event_name = request.form.get("event_details")
         event_date = request.form.get("event_date")
 
-        print(f"Event Name: {event_name}, Event Date: {event_date}")  # Debugging
-
-        # Insert new event into the database
         if event_name and event_date:
             try:
                 with conn:
@@ -264,18 +274,14 @@ def friendship_hub(connection_id):
                         """,
                         (connection_id, event_name, event_date)
                     )
+                flash("Event added successfully!", "success")
                 return redirect(url_for('friendship_hub', connection_id=connection_id))
             except sqlite3.Error as e:
                 flash(f"Error adding event: {e}", "danger")
-                print(f"Database error: {e}")  # Debugging
 
-    # Close the connection after processing
     conn.close()
 
-    # Return the friendship hub page with the events passed to Jinja
-    return render_template("friendship_hub.html", connection_id=connection_id, events=events)
-
-
+    return render_template("friendship_hub.html", connection_id=connection_id, events=events, images = images, milestones=milestones)
 
 @app.route("/changePassword", methods=["GET", "POST"])
 @login_required
@@ -312,6 +318,155 @@ def change_password():
         # Redirect user back to home page
         return redirect("/")
     
+
+@app.route("/add-milestone/<int:connection_id>", methods=["POST"])
+@login_required
+def add_milestone(connection_id):
+    milestone_text = request.form.get("milestone_text")
+
+    # Validate the milestone length to be less than 20 characters
+    if len(milestone_text) > 20:
+        flash("Milestone must be less than 20 characters.", "danger")
+        return redirect(url_for("friendship_hub", connection_id=connection_id))
+
+    # Insert the milestone into the database
+    conn = get_db_connection()
+    try:
+        with conn:
+            conn.execute(
+                """
+                INSERT INTO milestones (friendship_id, milestone_name)
+                VALUES (?, ?)
+                """,
+                (connection_id, milestone_text)
+            )
+        flash("Milestone added successfully!", "success")
+    except sqlite3.Error as e:
+        flash(f"Error adding milestone: {e}", "danger")
+    finally:
+        conn.close()
+
+    return redirect(url_for("friendship_hub", connection_id=connection_id))
+
+
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Create the folder if it doesn't exist
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route("/upload_image/<int:connection_id>", methods=["POST"])
+@login_required
+def upload_image(connection_id):
+    # Check if file is in the request
+    if 'image_file' not in request.files:
+        flash('No file part', 'danger')
+        return redirect(url_for('friendship_hub', connection_id=connection_id))
+
+    file = request.files['image_file']
+
+    # Validate the file
+    if file.filename == '':
+        flash('No selected file', 'danger')
+        return redirect(url_for('friendship_hub', connection_id=connection_id))
+
+    if file and allowed_file(file.filename):
+        # Secure and save the file
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+
+        # Store the image URL in the database
+        photo_url = os.path.join('uploads', filename)  # Relative path
+        conn = get_db_connection()
+        try:
+            with conn:
+                conn.execute(
+                    """
+                    INSERT INTO images (friendship_id, photo_url)
+                    VALUES (?, ?)
+                    """,
+                    (connection_id, photo_url)
+                )
+            flash("Image uploaded successfully!", "success")
+        except sqlite3.Error as e:
+            flash(f"Error uploading image: {e}", "danger")
+        finally:
+            conn.close()
+
+        return redirect(url_for('friendship_hub', connection_id=connection_id))
+
+    flash('Invalid file format. Only image files are allowed.', 'danger')
+    return redirect(url_for('friendship_hub', connection_id=connection_id))
+
+
+@app.route("/delete-milestone/<int:milestone_id>", methods=["POST"])
+@login_required
+def delete_milestone(milestone_id):
+    """Delete a milestone by its ID."""
+    conn = get_db_connection()
+    try:
+        with conn:
+            conn.execute("DELETE FROM milestones WHERE id = ?", (milestone_id,))
+        flash("Milestone deleted successfully!", "success")
+    except sqlite3.Error as e:
+        flash(f"Error deleting milestone: {e}", "danger")
+    finally:
+        conn.close()
+    
+    # Redirect back to the friendship hub
+    return redirect(request.referrer or "/")
+
+@app.route("/delete-photo/<int:friendship_id>", methods=["POST"])
+@login_required
+def delete_photo(friendship_id):
+    """Delete a photo based on friendship_id and photo_url."""
+    photo_url = request.form.get("photo_url")  # Get the photo URL from the form
+
+    if not photo_url:
+        flash("Photo URL is required for deletion.", "danger")
+        return redirect(request.referrer or "/")
+
+    conn = get_db_connection()
+    try:
+        # Check if the photo exists for the given friendship_id
+        photo = conn.execute(
+            "SELECT photo_url FROM images WHERE friendship_id = ? AND photo_url = ?",
+            (friendship_id, photo_url)
+        ).fetchone()
+
+        if photo:
+            # Build the full file path
+            photo_path = os.path.join(app.config['UPLOAD_FOLDER'], photo["photo_url"])
+
+            # Delete the photo file from the file system
+            if os.path.exists(photo_path):
+                os.remove(photo_path)
+
+            # Delete the photo record from the database
+            with conn:
+                conn.execute(
+                    "DELETE FROM images WHERE friendship_id = ? AND photo_url = ?",
+                    (friendship_id, photo_url)
+                )
+            flash("Photo deleted successfully!", "success")
+        else:
+            flash("Photo not found for this friendship.", "danger")
+    except sqlite3.Error as e:
+        flash(f"Error deleting photo: {e}", "danger")
+    finally:
+        conn.close()
+
+    # Redirect back to the friendship hub
+    return redirect(request.referrer or "/")
+
 
 conn = get_db_connection()
 conn.close()
