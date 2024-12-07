@@ -10,13 +10,47 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     </head>
+    <style>
+        /* Styling for the hamburger menu */
+        .btn-hamburger {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 24px;
+            width: 30px;
+            background: transparent;
+            border: none;
+            margin-left: 15px; /* Add spacing between translate and hamburger */
+        }
 
+        .btn-hamburger .bar {
+            height: 4px;
+            width: 100%;
+            background: #333;
+            border-radius: 2px;
+        }
+
+        /* Styling for the navigation bar */
+        .navbar {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 10px 20px;
+        }
+
+        /* Styling for the translate dropdown */
+        #google_translate_element select {
+            padding: 5px;
+            font-size: 14px;
+        }
+    </style>
     <body>
         <!-- Navigation -->
         <header class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
                 <h1 class="navbar-brand">Friendship Manager</h1>
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center ms-auto">
+                    <!-- Translate Button -->
+                    <div id="google_translate_element" class="ms-auto"></div>
                     <!-- Hamburger Menu -->
                     <button class="btn-hamburger" onclick="toggleMenu()">
                         <div class="bar"></div>
@@ -122,14 +156,6 @@
             </div>
         </div>
 
-
-
-
-
-
-
-
- 
         <script>
             // Recent Update Feed
             document.addEventListener("DOMContentLoaded", () => {
@@ -215,6 +241,17 @@
                 menu.classList.toggle('show');
             }
         </script>
+        <!-- Google Translate Script -->
+        <script type="text/javascript">
+            function googleTranslateElementInit() {
+                new google.translate.TranslateElement({
+                    pageLanguage: 'en',  // The original language of the page
+                    includedLanguages: 'es,fr,de',  // Spanish, French, German
+                    autoDisplay: false
+                }, 'google_translate_element');
+            }
+        </script>
+        <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     </body>
 
 </html>
