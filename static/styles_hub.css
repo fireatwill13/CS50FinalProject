@@ -29,240 +29,206 @@ body {
     }
 }
 
-/* Header */
-header {
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 1em;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    background-color: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(8px);
+header h1 {
+    font-size: 1.5rem;
+    color: #0044cc;
 }
 
-/* Navbar Styling */
-
-/* Cultural Information Section */
-#culture-section {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between; /* Spread dropdowns evenly */
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.1);
+header .text-muted {
+    font-size: 0.9rem;
+    color: #555;
 }
 
-#culture-section h2 {
-    flex-basis: 100%; /* Full width title */
-    margin-bottom: 10px;
-    text-align: center;
-    color: #004d73;
-}
-
-.navbar {
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 12px;
-    margin-bottom: 20px;
-}
-
-.navbar-brand {
-    color: #004d73;
-    font-size: 1.5em;
+/* Typewriter Effect */
+.typewriter {
+    font-size: 6em;
     font-weight: bold;
+    color: black;
+    margin-bottom: 20px;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 3px solid #ffffff;
+    width: fit-content;
+    animation: typing 3s steps(22), blink 0.5s step-end infinite alternate;
 }
 
-.navbar-toggler {
+@keyframes typing {
+    from { width: 0; }
+    to { width: 20ch; }
+}
+
+@keyframes blink {
+    from { border-color: transparent; }
+    to { border-color: #ffffff; }
+}
+
+/* Sidebar Cards */
+.card {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* Time Cards */
+#your-time, #their-time {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Map Styling */
+iframe {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Shared Calendar */
+#calendar {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#calendar li {
+    padding: 8px;
+    margin-bottom: 5px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    font-size: 0.95rem;
+}
+
+/* Chat Section */
+#chat-box {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px;
+    height: 400px;
+    overflow-y: auto;
+}
+
+#chat-box .text-start div {
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    padding: 10px;
+    display: inline-block;
+}
+
+#chat-box .text-end div {
+    background: #007bff;
+    color: #fff;
+    border-radius: 12px;
+    padding: 10px;
+    display: inline-block;
+}
+
+/* Form Styling */
+#chat-form {
+    display: flex;
+    gap: 10px;
+}
+
+#chat-form input {
+    flex: 1;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+#chat-form button {
+    border-radius: 20px;
+    padding: 8px 20px;
+    background: #007bff;
+    color: #fff;
     border: none;
 }
 
+/* Cultural Information */
+#cultural-box {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#cultural-box h2 {
+    font-size: 1.3rem;
+    color: #0044cc;
+}
+
+#cultural-box p {
+    font-size: 0.95rem;
+    margin: 5px 0;
+}
+
+/* Navbar inside Cultural Information */
+.navbar {
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+}
+
+.navbar-brand {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
 .navbar-toggler-icon {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%2811,102,128,1%29' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+    background-color: #007bff;
+    border-radius: 50%;
 }
 
-.nav-item {
-    margin: 0 10px;
-}
-
-/* Section Containers */
-.section {
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.1);
-    background-color: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(8px);
+.navbar-nav .nav-link {
+    font-size: 0.9rem;
 }
 
 /* Photo Collage Section */
 .photo-collage-section {
-    margin-top: 20px;
-    background-color: rgba(245, 248, 250, 0.9);
-    border-radius: 12px;
+    background: #ffffff;
+    border-radius: 8px;
     padding: 20px;
-    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.1);
-    height: 500px; /* Adjust height to fill space */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Collage Grid Styling */
-.collage-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    grid-gap: 15px;
-}
-
-/* Ensure the carousel stretches */
-.carousel-inner {
-    width: 100%;
-    height: 100%;
-}
-
-.collage-img {
-    width: 100%;
+.photo-collage-section .collage-img {
+    border-radius: 8px;
+    margin: 5px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     height: 200px;
-    object-fit: cover;
-    border-radius: 10px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.collage-img:hover {
-    transform: scale(1.05);
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-/* Milestones Section */
-#milestones-list {
-    padding: 0;
-    margin: 0;
-}
-
-.milestone-text {
-    color: #004d73;
-    font-size: 1em;
-}
-
-.milestone-checkbox {
-    transform: scale(1.2);
-}
-
-.milestone-checkbox:checked + .milestone-text {
-    text-decoration: line-through;
-    color: #888;
-}
-
-.delete-milestone {
-    font-size: 0.9em;
-}
-
-#add-milestone-form input {
-    border-radius: 20px;
-    margin-right: 10px;
-}
-
-#add-milestone-form button {
-    border-radius: 20px;
-}
-
-/* Footer */
-footer {
-    text-align: center;
-    padding: 1em;
-    border-top: 1px solid #ddd;
-    color: #666;
-}
-
-.photo-collage-section {
-    margin-top: 20px;
-    background-color: rgba(245, 248, 250, 0.9);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.1);
-    height: auto; /* Let height adjust dynamically */
-}
-
-/* Fix any unnecessary padding in the carousel */
-.carousel-inner {
-    padding: 0;
-    margin: 0;
-    height: auto; /* Remove fixed height */
-}
-
-/* Collage Grid Styling */
-.collage-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Adjust to fit images properly */
-    grid-gap: 15px;
-    margin: 0; /* Remove any extra margin */
-    padding: 10px;
-}
-
-/* Collage Images */
-.collage-img {
     width: 100%;
-    height: auto; /* Maintain aspect ratio */
     object-fit: cover;
-    border-radius: 10px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Carousel controls styling */
+.photo-collage-section .collage-img:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Carousel Styling */
 .carousel-control-prev-icon,
 .carousel-control-next-icon {
-    filter: invert(100%);
+    filter: invert(1);
 }
 
 .carousel-control-prev-icon:hover,
 .carousel-control-next-icon:hover {
-    transform: scale(1.1);
+    transform: scale(1.2);
 }
 
-/* Remove extra spacing from buttons or controls */
-.carousel-indicators {
-    margin-bottom: 10px; /* Adjust spacing beneath indicators */
-}
-#imageModal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    z-index: 9999;
-    overflow-y: auto; /* Enable scrolling if necessary */
+/* General Button Styling */
+button {
+    transition: all 0.2s ease;
 }
 
-#imageModal div {
-    position: relative;
-    max-width: 75%;
-    margin: 40px auto 60px auto; /* Add space at the top and bottom */
-    text-align: center;
-}
-
-#zoomedImage {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
-}
-
-#imageModal button {
-    position: absolute;
-    top: -10px;
-    right: -10px;
-    background: red;
-    color: white;
-    border: none;
-    padding: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-#imageModal button:hover {
-    background-color: darkred;
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
 }
