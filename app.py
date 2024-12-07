@@ -25,8 +25,6 @@ Session(app)
 
 # Configure CS50 Library to use SQLite database
 
-conn = get_db_connection()
-
 
 #Configure register
 @app.route("/register", methods=["GET", "POST"])
@@ -125,31 +123,75 @@ def login():
 @app.route("/create-connection", methods=["POST"])
 @login_required
 def create_connection():
-    """Handle new connection creation."""
+    """Create a new friendship connection."""
+    conn = get_db_connection()
+    creator_id = session["user_id"]
+    creator_username = conn.execute(
+        "SELECT username FROM users WHERE id = ?",
+        (creator_id,)
+    ).fetchone()["username"]
+
+    # Get the recipient username from the form
     connection_name = request.form.get("connection_name")
+    connections = conn.execute(
+                """
+                SELECT
+                    id, 
+                    CASE 
+                        WHEN creator_id = ? THEN recipient_username 
+                        ELSE creator_username 
+                    END AS name, 
+                    time_created 
+                FROM friendships
+                WHERE creator_id = ? OR recipient_id = ?
+                ORDER BY time_created DESC
+                """,
+                (creator_id, creator_id, creator_id)
+        ).fetchall()
+    # Check if the connection name is provided
     if not connection_name:
-        flash("Connection name is required.")
-        return redirect("/")
+        return render_template("friendship_homepage.html", connections=connections, connection_error="Please enter a connection name.")
 
-    # Format the name for storage or display
-    formatted_name = connection_name.strip().lower().replace(" ", "-")
-    user_id = session["user_id"]
-    created_date = datetime.now().strftime("%Y-%m-%d")
+    # Check if the recipient user exists
+    recipient = conn.execute(
+        "SELECT id, username FROM users WHERE username = ?",
+        (connection_name,)
+    ).fetchone()
+    if connection_name == creator_username:
+        return render_template("friendship_homepage.html", connections=connections, connection_error="You cannot create a connection with yourself.")
 
-    # Save to database
+    if not recipient:
+        return render_template("friendship_homepage.html", connections=connections, recipient_error="Username does not exist.")
+
+    recipient_id = recipient["id"]
+    recipient_username = recipient["username"]
+
+    # Check if the friendship already exists
+    existing_friendship = conn.execute(
+        """
+        SELECT * FROM friendships 
+        WHERE (creator_id = ? AND recipient_id = ?) 
+        OR (creator_id = ? AND recipient_id = ?)
+        """,
+        (creator_id, recipient_id, recipient_id, creator_id)
+    ).fetchone()
+
+    if existing_friendship:
+        return render_template("friendship_homepage.html", connections=connections, friendship_error="Friendship already exists.")
+
+    # Create the friendship
     try:
         with conn:
             conn.execute(
-                "INSERT INTO connections (user_id, name, created_date) VALUES (?, ?, ?)",
-                (user_id, formatted_name, created_date)
+                """
+                INSERT INTO friendships (creator_id, creator_username, recipient_id, recipient_username)
+                VALUES (?, ?, ?, ?)
+                """,
+                (creator_id, creator_username, recipient_id, recipient_username)
             )
-        flash("Connection created successfully!")
-    except sqlite3.Error as e:
-        flash(f"Error creating connection: {e}")
-
-    return redirect("/")
-
-
+        return render_template("friendship_homepage.html", connections=connections, confirmation_message="Friendship Successfully Created!")
+    except sqlite3.IntegrityError:
+        return redirect("/")
 
 @app.after_request
 def after_request(response):
@@ -163,8 +205,42 @@ def after_request(response):
 @app.route("/")
 @login_required
 def homepage():
-    
-    return render_template("friendship_homepage.html")
+    conn = get_db_connection()
+
+    user_id = session["user_id"]
+
+    # Query friendships for the logged-in user
+    connections = conn.execute(
+        """
+        SELECT
+            id, -- include id of the actual friendship 
+            CASE 
+                WHEN creator_id = ? THEN recipient_username 
+                ELSE creator_username 
+            END AS name, 
+            time_created 
+        FROM friendships
+        WHERE creator_id = ? OR recipient_id = ?
+        ORDER BY time_created DESC
+        """,
+        (user_id, user_id, user_id)
+    ).fetchall()
+
+    conn.close()
+
+    # Debug: Print connections
+    print("Connections:", [dict(row) for row in connections])
+
+    return render_template("friendship_homepage.html", connections=connections)
+
+
+#Redirect to friendship_hub per the unique connection id from person
+@app.route("/friendship_hub/<int:connection_id>", methods=["GET", "POST"])
+@login_required
+def friendship_hub(connection_id):
+    print(f"Accessed friendship_hub with connection_id: {connection_id}")  # Debugging output
+    return render_template("friendship_hub.html", connection_id=connection_id)
+
 
 
 @app.route("/buy", methods=["GET", "POST"])
@@ -334,7 +410,7 @@ def change_password():
         return redirect("/")
     
 
-
+conn = get_db_connection()
 conn.close()
 if __name__ == "__main__":
     app.run(debug=True)
