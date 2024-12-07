@@ -135,7 +135,8 @@ def create_connection():
     connection_name = request.form.get("connection_name")
     connections = conn.execute(
                 """
-                SELECT 
+                SELECT
+                    id, 
                     CASE 
                         WHEN creator_id = ? THEN recipient_username 
                         ELSE creator_username 
@@ -211,7 +212,8 @@ def homepage():
     # Query friendships for the logged-in user
     connections = conn.execute(
         """
-        SELECT 
+        SELECT
+            id, -- include id of the actual friendship 
             CASE 
                 WHEN creator_id = ? THEN recipient_username 
                 ELSE creator_username 
@@ -231,6 +233,13 @@ def homepage():
 
     return render_template("friendship_homepage.html", connections=connections)
 
+
+#Redirect to friendship_hub per the unique connection id from person
+@app.route("/friendship_hub/<int:connection_id>", methods=["GET", "POST"])
+@login_required
+def friendship_hub(connection_id):
+    print(f"Accessed friendship_hub with connection_id: {connection_id}")  # Debugging output
+    return render_template("friendship_hub.html", connection_id=connection_id)
 
 
 

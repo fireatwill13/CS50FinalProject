@@ -99,16 +99,22 @@
                                     {{ friendship_error }}
                                 </div>
                             {% endif %}
+                            {% if confirmation_message %}
+                            <div class="alert alert-success" role="alert">
+                                {{ confirmation_message }}
+                            </div>
+                            {% endif %}
                     
                             <!-- Display connections -->
                             <ul id="friendship-list" class="list-group">
                                 {% for connection in connections %}
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="/friendship_hub/{{ connection.id }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                         <span class="fw-bold">You x {{ connection.name }}</span>
                                         <span class="text-muted">Created: {{ connection.time_created }}</span>
-                                    </li>
+                                    </a>
                                 {% endfor %}
                             </ul>
+                            
                     
                             <!-- Form to create a new connection -->
                             <form id="createConnectionForm" method="POST" action="/create-connection" class="mt-3">
