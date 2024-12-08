@@ -20,7 +20,7 @@
                 <h1 class="navbar-brand typewriter">Friendship Manager</h1>
                 <div class="ms-auto d-flex align-items-center">
                     <!-- Exit Button -->
-                    <a href="{{ url_for('friendship_homepage') }}" class="btn btn-danger ms-2">Go Back</a>
+                    <a href="{{ url_for('homepage') }}" class="btn btn-danger ms-2">Go Back</a>
                 </div>
             </div>
                 <div class="d-flex align-items-center ms-auto">
@@ -492,7 +492,7 @@ setInterval(updateClocks, 1000);
     <script>
         //Cultural API Script
         document.addEventListener("DOMContentLoaded", () => {
-                const countryName = "{{recipiant_country}}"; // Dynamically set the country name
+                const countryName = "{{ recipient_country }}"; // Dynamically set the country name
                 const region = document.getElementById("region");
                 const population = document.getElementById("population");
                 const languages = document.getElementById("languages");
