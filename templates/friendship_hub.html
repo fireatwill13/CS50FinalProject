@@ -194,45 +194,6 @@
                         </div>
                         <div class="card-body" id="cultural-box" style="height: 400px; overflow-y: auto;">
                             <h2 id="countryName" class="text-center mb-3">Country Name</h2>
-                            <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
-                                <a class="navbar-brand" href="#">Culture Details</a>
-                                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCulture" aria-controls="navbarCulture" aria-expanded="false" aria-label="Toggle navigation">
-                                    <span class="navbar-toggler-icon"></span>
-                                </button>
-                                <div class="collapse navbar-collapse" id="navbarCulture">
-                                    <ul class="navbar-nav flex-column">
-                                        <!-- Traditional Food -->
-                                        <li class="nav-item dropdown">
-                                            <a class="nav-link dropdown-toggle" href="#" id="foodDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                Traditional Food
-                                            </a>
-                                            <ul class="dropdown-menu" aria-labelledby="foodDropdown" id="foodMenu">
-                                                <p><a class="dropdown-item" href="#" id = "cuisineIntro">Loading...</a></p>
-                                            </ul>
-                                        </li>
-
-                                        <!-- Famous Landmarks -->
-                                        <li class="nav-item dropdown">
-                                            <a class="nav-link dropdown-toggle" href="#" id="landmarkDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                Famous Landmarks
-                                            </a>
-                                            <ul class="dropdown-menu" aria-labelledby="landmarkDropdown" id="landmarkMenu">
-                                                <li><a class="dropdown-item" href="#">Loading...</a></li>
-                                            </ul>
-                                        </li>
-
-                                        <!-- Festivals -->
-                                        <li class="nav-item dropdown">
-                                            <a class="nav-link dropdown-toggle" href="#" id="festivalDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                Festivals
-                                            </a>
-                                            <ul class="dropdown-menu" aria-labelledby="festivalDropdown" id="festivalMenu">
-                                                <li><a class="dropdown-item" href="#">Loading...</a></li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </nav>
                             <hr>
                             <div id="infoContainer">
                                 <p><strong>Region:</strong> <span id="region"></span></p>
@@ -485,14 +446,11 @@
     <script>
         //Cultural API Script
         document.addEventListener("DOMContentLoaded", () => {
-                const countryName = "Spain"; // Dynamically set the country name
+                const countryName = "{{recipiant_country}}"; // Dynamically set the country name
                 const region = document.getElementById("region");
                 const population = document.getElementById("population");
                 const languages = document.getElementById("languages");
                 const culturalInfo = document.getElementById("culturalInfo");
-                const foodMenu = document.getElementById("foodMenu");
-                const landmarkMenu = document.getElementById("landmarkMenu");
-                const festivalMenu = document.getElementById("festivalMenu");
 
                 // Fetch country data from REST Countries API
                 fetch(`https://restcountries.com/v3.1/name/${countryName}`)
@@ -506,9 +464,6 @@
 
                         // Fetch cultural information from Wikipedia API
                         fetchWikipediaContent(countryName);
-                        fetchDropdownData(countryName, "Cuisine", foodMenu);
-                        fetchDropdownData(countryName, "World Heritage Sites", landmarkMenu);
-                        fetchDropdownData(countryName, "Festivals", festivalMenu);
                     })
                     .catch(error => {
                         console.error("Error fetching country data:", error);
@@ -553,54 +508,6 @@
                     const words = textContent.split(/\s+/).slice(0, wordLimit); // Limit to the first 200 words
                     return words.join(" ") + (words.length >= wordLimit ? "..." : ""); // Append ellipsis if truncated
                 }
-                let cuisineIntroText = ""; // Variable to store the introduction
-
-    // Fetch Cuisine Introduction
-    fetchCuisineIntro(countryName)
-        .then(intro => {
-            cuisineIntroText = intro; // Store the fetched introduction in a variable
-            console.log("Cuisine Introduction:", cuisineIntroText); // Debugging log
-        })
-        .catch(error => {
-            console.error("Error fetching cuisine introduction:", error);
-        });
-
-    // Function to fetch cuisine introduction from Wikidata
-    async function fetchCuisineIntro(country) {
-        const sparqlQuery = `
-            SELECT ?description WHERE {
-                ?cuisine wdt:P495 wd:${getCountryWikidataId(country)} ;
-                         schema:description ?description .
-                FILTER (lang(?description) = "en")
-            }
-            LIMIT 1
-        `;
-        const endpointUrl = "https://query.wikidata.org/sparql";
-        const url = `${endpointUrl}?query=${encodeURIComponent(sparqlQuery)}&format=json`;
-
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-            if (data.results.bindings.length > 0) {
-                return data.results.bindings[0].description.value; // Return the cuisine introduction
-            } else {
-                return "No information available.";
-            }
-        } catch (error) {
-            console.error("Error fetching Wikidata API:", error);
-            throw error;
-        }
-    }
-
-    // Helper function to map country name to Wikidata ID
-    function getCountryWikidataId(country) {
-        const countryMap = {
-            Italy: "Q38",
-            France: "Q142",
-            Spain: "Q29",
-        };
-        return countryMap[country] || "Q38"; // Default to Italy if country not found
-    }
             });
     </script>
     </body>
