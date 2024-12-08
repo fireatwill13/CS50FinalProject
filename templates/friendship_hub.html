@@ -97,7 +97,7 @@
                                 {% for image in images %}
                                     <div class="position-relative">
                                     <!-- Clickable Thumbnail -->
-                                        <img src="{{ url_for('static', filename=image.photo_url) }}" alt="Gallery Image" class="img-thumbnail" width="150" style="cursor: pointer;" onclick="openModal('{{ url_for('static' filename=image.photo_url) }}')">
+                                        <img src="{{ url_for('static', filename=image.photo_url) }}" alt="Gallery Image" class="img-thumbnail" width="150" style="cursor: pointer;" onclick="openModal('{{ url_for('static', filename=image.photo_url) }}')">
 
                                     <!-- Delete Photo Button -->
                                         <form action="{{ url_for('delete_photo', friendship_id=connection_id) }}" method="POST" style="position: absolute; top: 5px; right: 5px;">
@@ -545,7 +545,7 @@
                 const chatBox = document.getElementById("chat-box");
                 chatBox.scrollTop = chatBox.scrollHeight;
             });
-            
+
             </script>
         <!-- Google Translate Script -->
         <script type="text/javascript">
