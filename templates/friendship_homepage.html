@@ -77,7 +77,7 @@
                         <div class="card-body text-center">
                             <i class="fas fa-clock fa-2x mb-2"></i>
                             <h4>Your Time</h4>
-                            <p id="clock" class="lead"></p>
+                            <p id="clock" class="lead">--:--</p>
                         </div>
                     </div>
                     <!-- Map -->
@@ -206,6 +206,28 @@
                     });
             }
 
+            // Clock Script
+            document.addEventListener('DOMContentLoaded', () => {
+                // Function to update the clock
+                function updateClock() {
+                    const now = new Date();
+                    const timeString = now.toLocaleTimeString();
+                    console.log("Clock updated:", timeString); // Debugging output
+                    const clockElement = document.getElementById('clock');
+
+                    if (clockElement) {
+                        clockElement.textContent = timeString;
+                    } else {
+                        console.error("Clock element not found.");
+                    }
+                }
+
+                // Update the clock immediately and every second
+                updateClock();
+                setInterval(updateClock, 1000);
+            });
+
+
             // Create New Connection Button
             document.getElementById("createConnection").addEventListener("click", function() {
                 const name = prompt("Enter the name of the other person:");
@@ -226,22 +248,6 @@
                     friendshipList.appendChild(newItem);
                 }
             });
-
-            // Clock Script
-            function updateClock() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString();
-            console.log("Updating time:", timeString); // Debugging output
-            const clockElement = document.getElementById('clock');
-            if (clockElement) {
-                clockElement.textContent = timeString;
-            } else {
-                console.error("Clock element not found");
-            }
-            }
-            setInterval(updateClock, 1000);
-            updateClock();
-
 
             // Toggle Menu Script
             function toggleMenu() {
