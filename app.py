@@ -25,6 +25,40 @@ Session(app)
 
 # Configure CS50 Library to use SQLite database
 
+# Mapping GMT offsets to IANA time zones
+timezone_mapping = {
+    "GMT+0": "UTC",
+    "GMT+1": "Europe/Brussels",  # Central European Time
+    "GMT+2": "Europe/Paris",  # Eastern European Time
+    "GMT+3": "Europe/Moscow",  # Moscow Time
+    "GMT+4": "Asia/Yerevan",  # Armenia Time
+    "GMT+5": "Asia/Karachi",  # Pakistan Standard Time
+    "GMT+6": "Asia/Omsk",  # Omsk Time
+    "GMT+7": "Asia/Krasnoyarsk",  # Krasnoyarsk Time
+    "GMT+8": "Asia/Singapore",  # China Standard Time
+    "GMT+9": "Asia/Tokyo",  # Japan Standard Time
+    "GMT+10": "Australia/Sydney",  # Eastern Australia Standard Time
+    "GMT+11": "Asia/Sakhalin",  # Sakhalin Time
+    "GMT+12": "Pacific/Auckland",  # New Zealand Standard Time
+    "GMT-1": "Africa/Abidjan",  # West Africa Time
+    "GMT-2": "Atlantic/Azores",  # Azores Time
+    "GMT-3": "America/Argentina/Buenos_Aires",  # Argentina Time
+    "GMT-4": "America/Houston",  # Atlantic Standard Time
+    "GMT-5": "America/New_York",  # Eastern Standard Time
+    "GMT-6": "America/Chicago",  # Central Standard Time
+    "GMT-7": "America/Denver",  # Mountain Standard Time
+    "GMT-8": "America/Los_Angeles",  # Pacific Standard Time
+    "GMT-9": "America/Anchorage",  # Alaska Standard Time
+    "GMT-10": "Pacific/Honolulu",  # Hawaii Standard Time
+    "GMT-11": "Pacific/Nome",  # Nome Time
+    "GMT-12": "Pacific/Kwajalein",  # International Date Line West
+}
+
+# Convert GMT offset to IANA time zone
+def convert_to_iana_timezone(gmt_time):
+    return timezone_mapping.get(gmt_time, "UTC")  # Default to UTC if not found
+
+
 
 #Configure register
 @app.route("/register", methods=["GET", "POST"])
@@ -273,13 +307,18 @@ def homepage():
         WHERE creator_id = ? OR recipient_id = ?
         ORDER BY time_created DESC
     """, (user_id, user_id, user_id)).fetchall()
+# Fetch user and recipient time zones from the database
+    user_time_zone_from_db = conn.execute("SELECT timezone FROM users WHERE id = ?", (session["user_id"],)).fetchone()["timezone"]
+
+    # Convert time zones to IANA format
+    user_time_zone = convert_to_iana_timezone(user_time_zone_from_db)
 
     conn.close()
 
     # Debug: Print connections
     print("Connections:", [dict(row) for row in connections])
 
-    return render_template("friendship_homepage.html", connections=connections, updates=updates)
+    return render_template("friendship_homepage.html", connections=connections, updates=updates, user_time_zone = user_time_zone)
 
 #Redirect to friendship_hub per the unique connection id from person
 
@@ -287,10 +326,6 @@ def homepage():
 @login_required
 def friendship_hub(connection_id):
     conn = get_db_connection()
-    
-
-
-
 
     friendship = conn.execute(
         "SELECT creator_id, recipient_id FROM friendships WHERE id = ?",
@@ -319,8 +354,6 @@ def friendship_hub(connection_id):
     # Default to "Unknown" if no country is found
     recipient_country = recipient_info["location"] if recipient_info else "Unknown"
 
-
-
     # Fetch chat messages for the connection
     chat_messages = conn.execute(
         """
@@ -332,7 +365,6 @@ def friendship_hub(connection_id):
         """,
         (connection_id,)
     ).fetchall()
-
 
     # Fetch existing events for the specified friendship connection
     events = conn.execute(
@@ -346,13 +378,24 @@ def friendship_hub(connection_id):
         (connection_id,)
     ).fetchall()
 
-
     # Fetch milestones for the friendship connection
     milestones = conn.execute(
         "SELECT id, milestone_name FROM milestones WHERE friendship_id = ?",
         (connection_id,)
     ).fetchall()
+
     user_id = session["user_id"]
+
+    # Fetch the time zones for both the logged-in user and the recipient
+    if friendship["creator_id"] == user_id:
+        recipient_id = friendship["recipient_id"]
+        user_time_zone = conn.execute("SELECT timezone FROM users WHERE id = ?", (user_id,)).fetchone()["timezone"]
+        recipient_time_zone = conn.execute("SELECT timezone FROM users WHERE id = ?", (recipient_id,)).fetchone()["timezone"]
+    else:
+        recipient_id = friendship["creator_id"]
+        user_time_zone = conn.execute("SELECT timezone FROM users WHERE id = ?", (user_id,)).fetchone()["timezone"]
+        recipient_time_zone = conn.execute("SELECT timezone FROM users WHERE id = ?", (recipient_id,)).fetchone()["timezone"]
+
     # Handle adding a new event via POST request
     if request.method == "POST":
         event_name = request.form.get("event_details")
@@ -368,24 +411,32 @@ def friendship_hub(connection_id):
                         """,
                         (connection_id, event_name, event_date)
                     )
-                    
 
-
-                    #-----------------------------------------
+                # Log the update
                 with conn:
                     conn.execute("""
                         INSERT INTO updates (user_id, action, connection_id)
                         VALUES (?, ?, ?)
                         """, (user_id, f"created a new event {event_name} for {event_date}", connection_id))
-                    #-----------------------------------------
+
                 flash("Event added successfully!", "success")
                 return redirect(url_for('friendship_hub', connection_id=connection_id))
             except sqlite3.Error as e:
                 flash(f"Error adding event: {e}", "danger")
 
+# Fetch user and recipient time zones from the database
+    user_time_zone_from_db = conn.execute("SELECT timezone FROM users WHERE id = ?", (session["user_id"],)).fetchone()["timezone"]
+    recipient_time_zone_from_db = conn.execute("SELECT timezone FROM users WHERE id = ?", (recipient_id,)).fetchone()["timezone"]
+
+    # Convert time zones to IANA format
+    user_time_zone = convert_to_iana_timezone(user_time_zone_from_db)
+    recipient_time_zone = convert_to_iana_timezone(recipient_time_zone_from_db)
+
     conn.close()
 
-    return render_template("friendship_hub.html", connection_id=connection_id, chat_messages=chat_messages, recipient_country = recipient_country, events=events, images = images, milestones=milestones)
+    return render_template("friendship_hub.html", connection_id=connection_id, chat_messages=chat_messages, 
+                           recipient_country=recipient_country, events=events, images=images, milestones=milestones, 
+                           user_time_zone=user_time_zone, recipient_time_zone=recipient_time_zone)
 
 @app.route("/changePassword", methods=["GET", "POST"])
 @login_required

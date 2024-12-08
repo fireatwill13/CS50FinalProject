@@ -206,27 +206,44 @@
                             console.error("Error loading updates:", error);
                         });
                 }
+// Clock Script
+document.addEventListener('DOMContentLoaded', () => {
+    // Function to update the clock for the user
+    function updateClock() {
+        // Get the user's time zone passed from Flask
+        const userTimeZone = "{{ user_time_zone }}"; // User's time zone (IANA format)
 
-                // Clock Script
-                document.addEventListener('DOMContentLoaded', () => {
-                    // Function to update the clock
-                    function updateClock() {
-                        const now = new Date();
-                        const timeString = now.toLocaleTimeString();
-                        console.log("Clock updated:", timeString); // Debugging output
-                        const clockElement = document.getElementById('clock');
+        // Debugging: Log the value of userTimeZone
+        console.log("User's Time Zone:", userTimeZone);
 
-                        if (clockElement) {
-                            clockElement.textContent = timeString;
-                        } else {
-                            console.error("Clock element not found.");
-                        }
-                    }
+        // Check if the time zone is valid
+        if (!userTimeZone) {
+            console.error("Time zone not passed correctly.");
+            return; // Exit if no time zone is found
+        }
 
-                    // Update the clock immediately and every second
-                    updateClock();
-                    setInterval(updateClock, 1000);
-                });
+        // Get current time
+        const now = new Date();
+
+        // Format the time according to the user's time zone
+        const userTime = new Intl.DateTimeFormat("en-US", {
+            timeStyle: "short",
+            timeZone: userTimeZone, // User's time zone
+        }).format(now);
+
+        // Update the displayed time for the user
+        const userClockElement = document.getElementById('clock');
+        if (userClockElement) {
+            userClockElement.textContent = userTime;
+        } else {
+            console.error("User clock element not found.");
+        }
+    }
+
+    // Update the clock immediately and then every second
+    updateClock();
+    setInterval(updateClock, 1000); // Update every second
+});
 
 
                 document.getElementById("createConnectionForm").addEventListener("submit", function(event) {

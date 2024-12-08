@@ -249,12 +249,35 @@
                     
             <script>
     // Update Clocks
-                function updateClocks() {
-                    const now = new Date();
-                    document.getElementById("your-time").textContent = now.toLocaleTimeString();
-                    document.getElementById("their-time").textContent = new Date(now.getTime() + (5 * 60 * 60 * 1000)).toLocaleTimeString(); // +5 hrs for example timezone
-                }
-                setInterval(updateClocks, 1000);
+    function updateClocks() {
+    // Get the user and recipient time zones passed from Flask
+    const userTimeZone = "{{ user_time_zone }}"; // User's time zone (IANA format)
+    const recipientTimeZone = "{{ recipient_time_zone }}"; // Recipient's time zone (IANA format)
+
+    // Get current time
+    const now = new Date();
+
+    // Format the time according to the user's time zone
+    const userTime = new Intl.DateTimeFormat("en-US", {
+        timeStyle: "short",
+        timeZone: userTimeZone, // User's time zone
+    }).format(now);
+
+    // Format the time according to the recipient's time zone
+    const recipientTime = new Intl.DateTimeFormat("en-US", {
+        timeStyle: "short",
+        timeZone: recipientTimeZone, // Recipient's time zone
+    }).format(now);
+
+    // Update the displayed time
+    document.getElementById("your-time").textContent = userTime;
+    document.getElementById("their-time").textContent = recipientTime;
+}
+
+// Update time every second
+setInterval(updateClocks, 1000);
+
+
 
     // Add Event to Calendar
                 function addCalendarEvent() {
