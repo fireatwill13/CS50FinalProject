@@ -81,7 +81,15 @@ def register():
 
     # Flash success message
     flash("Registered successfully!")
-    return redirect("/login")
+    return render_template("login.html")
+
+@app.route("/logout")
+def logout():
+    """Log user out"""
+    session.clear()  # Clear the session
+    flash("You have been logged out successfully.", "success")
+    return redirect("/login")  # Redirect to the login page
+
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -331,6 +339,8 @@ def friendship_hub(connection_id):
 
 @app.route("/changePassword", methods=["GET", "POST"])
 @login_required
+
+
 def change_password():
     """Allow user to change password"""
     if request.method == "GET":
