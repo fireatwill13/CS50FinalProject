@@ -101,9 +101,20 @@
                             <i class="fas fa-bell"></i> Recent Updates
                         </div>
                         <div class="card-body" id="updates-container" style="height: 250px; overflow-y: auto;">
-                            <p class="text-muted text-center">Loading updates...</p>
+                            {% if updates %}
+                                {% for update in updates %}
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <span><strong>{{ update.username }}:</strong> {{ update.action }}</span>
+                                        <small class="text-muted">{{ update.timestamp }}</small>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-muted text-center">No recent updates.</p>
+                            {% endif %}
                         </div>
                     </div>
+
+                    
                     <!-- Friendship Hub -->
                     <div class="card">
                         <div class="card-header">
@@ -239,6 +250,32 @@
                 button.classList.toggle('active');
                 menu.classList.toggle('show');
             }
+            function loadRecentUpdates() {
+            fetch("/api/recent-updates")
+                .then((response) => response.json())
+                .then((updates) => {
+                    const updatesContainer = document.getElementById("updates-container");
+                    updatesContainer.innerHTML = ""; // Clear placeholder text
+
+                    if (updates.length === 0) {
+                        updatesContainer.innerHTML = '<p class="text-muted text-center">No recent updates.</p>';
+                    } else {
+                        updates.forEach((update) => {
+                            const updateElement = document.createElement("div");
+                            updateElement.className = "d-flex justify-content-between align-items-start mb-2";
+                            updateElement.innerHTML = `
+                                <span><strong>${update.name}:</strong> ${update.action}</span>
+                                <small class="text-muted">${new Date(update.timestamp).toLocaleString()}</small>
+                            `;
+                            updatesContainer.appendChild(updateElement);
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error loading updates:", error);
+                });
+        }
+
         </script>
         <!-- Google Translate Script -->
         <script type="text/javascript">

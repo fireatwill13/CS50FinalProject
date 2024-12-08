@@ -1,10 +1,11 @@
 import os
 import sqlite3
+import json
 def get_db_connection():
     conn = sqlite3.connect("data.db")
     conn.row_factory = sqlite3.Row
     return conn
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session, url_for, jsonify
 from flask_session import Session
 from datetime import datetime
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -216,6 +217,23 @@ def homepage():
 
     user_id = session["user_id"]
 
+
+#-------------------------------------------------------------------------
+
+
+
+    updates = conn.execute("""
+        SELECT u.action, u.timestamp, u.user_id, us.username
+        FROM updates u
+        JOIN users us ON u.user_id = us.id
+        ORDER BY u.timestamp DESC
+        LIMIT 10
+        """).fetchall()
+
+
+
+
+#-------------------------------------------------------------------------
     # Query friendships for the logged-in user
     connections = conn.execute(
         """
@@ -238,7 +256,7 @@ def homepage():
     # Debug: Print connections
     print("Connections:", [dict(row) for row in connections])
 
-    return render_template("friendship_homepage.html", connections=connections)
+    return render_template("friendship_homepage.html", connections=connections, updates = updates)
 
 
 #Redirect to friendship_hub per the unique connection id from person
@@ -312,7 +330,7 @@ def friendship_hub(connection_id):
         "SELECT id, milestone_name FROM milestones WHERE friendship_id = ?",
         (connection_id,)
     ).fetchall()
-
+    user_id = session["user_id"]
     # Handle adding a new event via POST request
     if request.method == "POST":
         event_name = request.form.get("event_details")
@@ -328,6 +346,16 @@ def friendship_hub(connection_id):
                         """,
                         (connection_id, event_name, event_date)
                     )
+                    
+
+
+                    #-----------------------------------------
+                with conn:
+                    conn.execute("""
+                        INSERT INTO updates (user_id, action, connection_id)
+                        VALUES (?, ?, ?)
+                        """, (user_id, f"created a new event {event_name} for {event_date}", connection_id))
+                    #-----------------------------------------
                 flash("Event added successfully!", "success")
                 return redirect(url_for('friendship_hub', connection_id=connection_id))
             except sqlite3.Error as e:
@@ -386,6 +414,7 @@ def add_milestone(connection_id):
         return redirect(url_for("friendship_hub", connection_id=connection_id))
 
     # Insert the milestone into the database
+    user_id = session["user_id"]
     conn = get_db_connection()
     try:
         with conn:
@@ -396,6 +425,14 @@ def add_milestone(connection_id):
                 """,
                 (connection_id, milestone_text)
             )
+
+        with conn:
+            # Log the update-------------------------------------------
+            conn.execute("""
+                INSERT INTO updates (user_id, action, connection_id)
+                VALUES (?, ?, ?)
+                """, (user_id, f"created a new milestone "{milestone_text}."", connection_id))
+           # -----------------------------------------------------------
         flash("Milestone added successfully!", "success")
     except sqlite3.Error as e:
         flash(f"Error adding milestone: {e}", "danger")
@@ -427,6 +464,7 @@ def upload_image(connection_id):
         return redirect(url_for('friendship_hub', connection_id=connection_id))
 
     file = request.files['image_file']
+    user_id = session["user_id"]
 
     # Validate the file
     if file.filename == '':
@@ -451,6 +489,13 @@ def upload_image(connection_id):
                     """,
                     (connection_id, photo_url)
                 )
+            with conn:
+                 # Log the update----------------------------------------------
+                conn.execute("""
+                    INSERT INTO updates (user_id, action, connection_id)
+                    VALUES (?, ?, ?)
+                """, (user_id, "uploaded a new image.", connection_id))
+                # -------------------------------------------------------------
             flash("Image uploaded successfully!", "success")
         except sqlite3.Error as e:
             flash(f"Error uploading image: {e}", "danger")
@@ -549,7 +594,13 @@ def send_message(connection_id):
     if not message_text:
         flash("Message cannot be empty.", "danger")
         return redirect(url_for("friendship_hub", connection_id=connection_id))
-
+    
+    # Log the update------------------------------------------
+    conn.execute("""
+        INSERT INTO updates (user_id, action, connection_id)
+        VALUES (?, ?, ?)
+        """, (session["user_id"], "sent a message.", connection_id))
+            # ---------------------------------------------------------
     # Insert the message into the database
     try:
         with conn:
