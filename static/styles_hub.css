@@ -107,6 +107,18 @@ header {
     height: 60vh;
     }
 
+.card-header {
+    font-size: 1em;
+    font-weight: normal;
+    text-align: center;
+    background-color: #004d73; /* Matches the theme color */
+    color: white;
+}
+
+.card-body {
+    padding: 20px;
+}
+
 
 
 /* Card Footer Form Styling */
@@ -159,8 +171,10 @@ header {
 /* Collage Grid Styling */
 .collage-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     grid-gap: 15px;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Ensure the carousel stretches */

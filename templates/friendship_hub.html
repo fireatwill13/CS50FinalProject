@@ -205,39 +205,48 @@
                         </div>
                     </div>
 
-                    <!-- Photo Collage Section -->
-                    <div class="photo-collage-section mt-4">
-                        <div id="photoCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
-                            <!-- Indicators -->
-                            <div class="carousel-indicators">
-                                {% for image in images %}
-                                    <button type="button" data-bs-target="#photoCarousel" data-bs-slide-to="{{ loop.index0 }}" class="{{ 'active' if loop.first }}" aria-current="{{ 'true' if loop.first }}" aria-label="Slide {{ loop.index }}"></button>
-                                {% endfor %}
-                            </div>
+                     <!-- Photo Collage Section -->
+                     <div class="card mb-4">
+                        <div class="card-header bg-primary text-white text-center">
+                            Photo Carousel
+                        </div>
+                        <div class="card-body">
+                            <div id="photoCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+                                <!-- Indicators -->
+                                <div class="carousel-indicators">
+                                    {% for image_group in images|batch(3) %}
+                                        <button type="button" data-bs-target="#photoCarousel" data-bs-slide-to="{{ loop.index0 }}"
+                                            class="{{ 'active' if loop.first }}" aria-current="{{ 'true' if loop.first }}"
+                                            aria-label="Slide {{ loop.index }}"></button>
+                                    {% endfor %}
+                                </div>
 
-                            <!-- Collage Slides -->
-                            <div class="carousel-inner">
-                                {% for image in images %}
-                                    <div class="carousel-item {{ 'active' if loop.first }}">
-                                        <div class="collage-grid">
-                                            <img src="{{ url_for('static', filename=image.photo_url) }}" class="collage-img" alt="Photo {{ loop.index }}">
+                                <!-- Slides -->
+                                <div class="carousel-inner">
+                                    {% for image_group in images|batch(3) %}
+                                        <div class="carousel-item {{ 'active' if loop.first }}">
+                                            <div class="collage-grid">
+                                                {% for image in image_group %}
+                                                    <img src="{{ url_for('static', filename=image.photo_url) }}" class="collage-img" alt="Photo">
+                                                {% endfor %}
+                                            </div>
                                         </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
+                                    {% endfor %}
+                                </div>
 
-                            <!-- Carousel Controls -->
-                            <button class="carousel-control-prev" type="button" data-bs-target="#photoCarousel" data-bs-slide="prev">
-                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Previous</span>
-                            </button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#photoCarousel" data-bs-slide="next">
-                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Next</span>
-                            </button>
+                                <!-- Carousel Controls -->
+                                <button class="carousel-control-prev" type="button" data-bs-target="#photoCarousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#photoCarousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
-
+                    
             <script>
     // Update Clocks
                 function updateClocks() {
@@ -299,22 +308,24 @@
                     }
                 });
 
-            // Photo carousel
-            document.addEventListener("DOMContentLoaded", () => {
-                            const gallery = document.getElementById("gallery");
+                // Photo carousel
+                document.addEventListener("DOMContentLoaded", () => {
+                            const carouselIndicators = document.querySelector("#photoCarousel .carousel-indicators");
+                            const carouselInner = document.querySelector("#photoCarousel .carousel-inner");
 
-                            // Function to dynamically refresh the carousel after uploading a new image
+                            // Function to refresh carousel dynamically
                             function refreshCarousel(newImages) {
-                                const indicators = document.querySelector("#photoCarousel .carousel-indicators");
-                                const slides = document.querySelector("#photoCarousel .carousel-inner");
+                                carouselIndicators.innerHTML = "";
+                                carouselInner.innerHTML = "";
 
-                                // Clear existing indicators and slides
-                                indicators.innerHTML = "";
-                                slides.innerHTML = "";
+                                // Batch images into groups of 3 per slide
+                                const imageGroups = [];
+                                for (let i = 0; i < newImages.length; i += 3) {
+                                    imageGroups.push(newImages.slice(i, i + 3));
+                                }
 
-                                // Populate with new images
-                                newImages.forEach((image, index) => {
-                                    // Create indicator
+                                imageGroups.forEach((group, index) => {
+                                    // Add indicator
                                     const indicator = document.createElement("button");
                                     indicator.type = "button";
                                     indicator.dataset.bsTarget = "#photoCarousel";
@@ -322,41 +333,48 @@
                                     indicator.className = index === 0 ? "active" : "";
                                     indicator.setAttribute("aria-current", index === 0 ? "true" : "false");
                                     indicator.setAttribute("aria-label", `Slide ${index + 1}`);
-                                    indicators.appendChild(indicator);
+                                    carouselIndicators.appendChild(indicator);
 
-                                    // Create slide
+                                    // Add slide
                                     const slide = document.createElement("div");
                                     slide.className = `carousel-item ${index === 0 ? "active" : ""}`;
-                                    const img = document.createElement("img");
-                                    img.src = image.photo_url; // Assuming `photo_url` is the full path
-                                    img.alt = `Photo ${index + 1}`;
-                                    img.className = "collage-img";
-                                    slide.appendChild(img);
-                                    slides.appendChild(slide);
+
+                                    // Add images to slide
+                                    const collageGrid = document.createElement("div");
+                                    collageGrid.className = "collage-grid";
+                                    group.forEach((image) => {
+                                        const img = document.createElement("img");
+                                        img.src = image.photo_url;
+                                        img.className = "collage-img";
+                                        img.alt = "Photo";
+                                        collageGrid.appendChild(img);
+                                    });
+
+                                    slide.appendChild(collageGrid);
+                                    carouselInner.appendChild(slide);
                                 });
                             }
 
-                            // Example of how to trigger a refresh after uploading a new image
+                            // Handle image upload and refresh the carousel
                             document.querySelector("form[action='/upload_image']").addEventListener("submit", function(e) {
                                 e.preventDefault();
                                 const formData = new FormData(this);
 
                                 fetch(this.action, {
                                     method: "POST",
-                                    body: formData
+                                    body: formData,
                                 })
-                                    .then(response => response.json())
-                                    .then(data => {
+                                    .then((response) => response.json())
+                                    .then((data) => {
                                         if (data.success) {
-                                            // Refresh the carousel with the updated images
-                                            refreshCarousel(data.images); // `data.images` is the updated image list
+                                            refreshCarousel(data.images); // Update carousel with new images
                                         } else {
                                             console.error("Error uploading image:", data.message);
                                         }
                                     })
-                                    .catch(error => console.error("Error:", error));
+                                    .catch((error) => console.error("Error:", error));
                             });
-                        });
+                        });                    
 
                         // Function to open the modal and show the image
                         function openModal(imageSrc) {
