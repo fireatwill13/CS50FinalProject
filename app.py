@@ -40,7 +40,7 @@ def register():
     confirm_password = request.form.get("confirm_pw")
     timezone = request.form.get("timezone")
     language = request.form.get("language")
-    location = request.form.get("country")
+    location = request.form.get("location")
     birthday = request.form.get("birthday")
 
     # Validate passwords
@@ -239,6 +239,52 @@ def homepage():
 @login_required
 def friendship_hub(connection_id):
     conn = get_db_connection()
+    
+
+
+
+
+    friendship = conn.execute(
+        "SELECT creator_id, recipient_id FROM friendships WHERE id = ?",
+        (connection_id,)
+    ).fetchone()
+
+    if not friendship:
+        flash("No such connection found.", "danger")
+        return redirect("/")
+
+    # Determine the recipient based on the logged-in user
+    if session["user_id"] == friendship["creator_id"]:
+        recipient_id = friendship["recipient_id"]
+    elif session["user_id"] == friendship["recipient_id"]:
+        recipient_id = friendship["creator_id"]
+    else:
+        flash("You are not part of this connection.", "danger")
+        return redirect("/")
+
+    # Fetch the recipient's country
+    recipient_info = conn.execute(
+        "SELECT location FROM users WHERE id = ?",
+        (recipient_id,)
+    ).fetchone()
+
+    # Default to "Unknown" if no country is found
+    recipient_country = recipient_info["location"] if recipient_info else "Unknown"
+
+
+
+    # Fetch chat messages for the connection
+    chat_messages = conn.execute(
+        """
+        SELECT cm.message_text, cm.timestamp, u.username AS sender
+        FROM chat_messages cm
+        JOIN users u ON cm.sender_id = u.id
+        WHERE cm.friendship_id = ?
+        ORDER BY cm.timestamp ASC
+        """,
+        (connection_id,)
+    ).fetchall()
+
 
     # Fetch existing events for the specified friendship connection
     events = conn.execute(
@@ -281,7 +327,7 @@ def friendship_hub(connection_id):
 
     conn.close()
 
-    return render_template("friendship_hub.html", connection_id=connection_id, events=events, images = images, milestones=milestones)
+    return render_template("friendship_hub.html", connection_id=connection_id, chat_messages=chat_messages, recipient_country = recipient_country, events=events, images = images, milestones=milestones)
 
 @app.route("/changePassword", methods=["GET", "POST"])
 @login_required
@@ -466,6 +512,51 @@ def delete_photo(friendship_id):
 
     # Redirect back to the friendship hub
     return redirect(request.referrer or "/")
+
+@app.route("/send-message/<int:connection_id>", methods=["POST"])
+@login_required
+def send_message(connection_id):
+    """Handle sending a chat message."""
+    conn = get_db_connection()
+
+    # Validate the friendship
+    friendship = conn.execute(
+        "SELECT creator_id, recipient_id FROM friendships WHERE id = ?",
+        (connection_id,)
+    ).fetchone()
+
+    if not friendship:
+        flash("No such connection found.", "danger")
+        return redirect("/")
+
+    # Ensure the user is part of the friendship
+    if session["user_id"] not in (friendship["creator_id"], friendship["recipient_id"]):
+        flash("You are not part of this connection.", "danger")
+        return redirect("/")
+
+    # Get the message text
+    message_text = request.form.get("message_text")
+    if not message_text:
+        flash("Message cannot be empty.", "danger")
+        return redirect(url_for("friendship_hub", connection_id=connection_id))
+
+    # Insert the message into the database
+    try:
+        with conn:
+            conn.execute(
+                """
+                INSERT INTO chat_messages (friendship_id, sender_id, message_text)
+                VALUES (?, ?, ?)
+                """,
+                (connection_id, session["user_id"], message_text)
+            )
+        flash("Message sent successfully!", "success")
+    except sqlite3.Error as e:
+        flash(f"Database error: {e}", "danger")
+    finally:
+        conn.close()
+
+    return redirect(url_for("friendship_hub", connection_id=connection_id))
 
 
 conn = get_db_connection()

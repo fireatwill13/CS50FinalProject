@@ -167,21 +167,25 @@
                     <div class="card mb-4">
                         <div class="card-header bg-primary text-white text-center">Chat</div>
                         <div class="card-body" id="chat-box" style="height: 400px; overflow-y: auto;">
+                            <!-- Display chat messages -->
                             {% for message in chat_messages %}
-                                <div class="{{ 'text-end' if message.sender == 'You' else 'text-start' }}">
-                                    <div class="p-2 bg-{{ 'primary text-white' if message.sender == 'You' else 'light' }} rounded" style="display: inline-block;">
-                                        {{ message.message_text }}
+                                <div class="{{ 'text-end' if message.sender == session['user_id'] else 'text-start' }}">
+                                    <div class="p-2 bg-{{ 'primary text-white' if message.sender == session['user_id'] else 'light' }} rounded" style="display: inline-block;">
+                                        <small class="text-muted">{{ message.timestamp }}</small><br>
+                                        <strong>{{ message.sender }}</strong>: {{ message.message_text }}
                                     </div>
                                 </div>
                             {% endfor %}
                         </div>
                         <div class="card-footer">
-                            <form id="chat-form" class="d-flex" action="/send-message" method="POST">
+                            <!-- Form to send a new message -->
+                            <form action="{{ url_for('send_message', connection_id=connection_id) }}" method="POST" class="d-flex">
                                 <input type="text" name="message_text" class="form-control me-2" placeholder="Type a message..." required>
                                 <button type="submit" class="btn btn-primary">Send</button>
                             </form>
                         </div>
                     </div>
+                    
 
                     <!-- Cultural Information -->
                     <div class="card mb-4">
@@ -363,7 +367,7 @@
                 });
             // Cultural API Script
             document.addEventListener("DOMContentLoaded", () => {
-    const countryName = "France"; // Dynamic input via Jinja
+    const countryName = "{{ recipient_country | escape }}"; // Dynamically set the country name
     const region = document.getElementById("region");
     const population = document.getElementById("population");
     const languages = document.getElementById("languages");
@@ -536,6 +540,12 @@
                         closeModal();
                     }
                 });
+
+                document.addEventListener("DOMContentLoaded", () => {
+                const chatBox = document.getElementById("chat-box");
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+            
             </script>
         <!-- Google Translate Script -->
         <script type="text/javascript">
@@ -592,6 +602,9 @@
                     }
                 });
             });
+
+
+
         </script>
     </body>
 
