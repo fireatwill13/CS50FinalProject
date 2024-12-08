@@ -133,6 +133,8 @@ def login():
 def create_connection():
     """Create a new friendship connection."""
     conn = get_db_connection()
+    cursor = conn.cursor()  # Create a cursor object to execute the query
+    
     creator_id = session["user_id"]
     creator_username = conn.execute(
         "SELECT username FROM users WHERE id = ?",
@@ -142,20 +144,21 @@ def create_connection():
     # Get the recipient username from the form
     connection_name = request.form.get("connection_name")
     connections = conn.execute(
-                """
-                SELECT
-                    id, 
-                    CASE 
-                        WHEN creator_id = ? THEN recipient_username 
-                        ELSE creator_username 
-                    END AS name, 
-                    time_created 
-                FROM friendships
-                WHERE creator_id = ? OR recipient_id = ?
-                ORDER BY time_created DESC
-                """,
-                (creator_id, creator_id, creator_id)
-        ).fetchall()
+        """
+        SELECT
+            id, 
+            CASE 
+                WHEN creator_id = ? THEN recipient_username 
+                ELSE creator_username 
+            END AS name, 
+            time_created 
+        FROM friendships
+        WHERE creator_id = ? OR recipient_id = ?
+        ORDER BY time_created DESC
+        """,
+        (creator_id, creator_id, creator_id)
+    ).fetchall()
+
     # Check if the connection name is provided
     if not connection_name:
         return render_template("friendship_homepage.html", connections=connections, connection_error="Please enter a connection name.")
@@ -185,21 +188,37 @@ def create_connection():
     ).fetchone()
 
     if existing_friendship:
-        return render_template("friendship_homepage.html", connections=connections, friendship_error="Friendship already exists.")
+        return jsonify({'error': 'Friendship already exists'})  # Modify to return specific error in JSON
 
     # Create the friendship
     try:
-        with conn:
-            conn.execute(
-                """
-                INSERT INTO friendships (creator_id, creator_username, recipient_id, recipient_username)
-                VALUES (?, ?, ?, ?)
-                """,
-                (creator_id, creator_username, recipient_id, recipient_username)
-            )
-        return render_template("friendship_homepage.html", connections=connections, confirmation_message="Friendship Successfully Created!")
-    except sqlite3.IntegrityError:
+        cursor.execute(
+            """
+            INSERT INTO friendships (creator_id, creator_username, recipient_id, recipient_username)
+            VALUES (?, ?, ?, ?)
+            """,
+            (creator_id, creator_username, recipient_id, recipient_username)
+        )
+        conn.commit()  # Commit the transaction
+
+        # Get the last inserted row's ID using cursor.lastrowid
+        connection_id = cursor.lastrowid
+
+        # Return the success response with connection ID and other data
+        return jsonify({
+            'success': 'Friendship Successfully Created!',
+            'name': connection_name,
+            'time_created': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'connection_id': connection_id
+        })
+
+    except sqlite3.Error as e:
+        flash(f"Error creating friendship: {e}", "danger")
         return redirect("/")
+
+    finally:
+        conn.close()
+
 
 @app.after_request
 def after_request(response):
@@ -214,31 +233,37 @@ def after_request(response):
 @login_required
 def homepage():
     conn = get_db_connection()
-
     user_id = session["user_id"]
 
+    # Get the friendship IDs for the logged-in user
+    friendships = conn.execute("""
+        SELECT f.id, f.time_created
+        FROM friendships f
+        WHERE f.creator_id = ? OR f.recipient_id = ?
+    """, (user_id, user_id)).fetchall()
 
-#-------------------------------------------------------------------------
+    # Extract the friendship IDs and their creation times
+    friendship_ids = [f["id"] for f in friendships]
+    friendship_times = {f["id"]: f["time_created"] for f in friendships}
 
+    # If no friendships exist, set a default date to avoid calling min() on an empty list
+    if not friendship_ids:
+        updates = []
+    else:
+        # Get updates only from friends and after the time the connection was created
+        updates = conn.execute("""
+            SELECT u.action, u.timestamp, u.user_id, us.username
+            FROM updates u
+            JOIN users us ON u.user_id = us.id
+            WHERE u.user_id != ? AND u.connection_id IN (?)
+            ORDER BY u.timestamp DESC
+            LIMIT 10
+        """, (user_id, ','.join(map(str, friendship_ids)), )).fetchall()
 
-
-    updates = conn.execute("""
-        SELECT u.action, u.timestamp, u.user_id, us.username
-        FROM updates u
-        JOIN users us ON u.user_id = us.id
-        ORDER BY u.timestamp DESC
-        LIMIT 10
-        """).fetchall()
-
-
-
-
-#-------------------------------------------------------------------------
     # Query friendships for the logged-in user
-    connections = conn.execute(
-        """
+    connections = conn.execute("""
         SELECT
-            id, -- include id of the actual friendship 
+            id, -- include id of the actual friendship
             CASE 
                 WHEN creator_id = ? THEN recipient_username 
                 ELSE creator_username 
@@ -247,17 +272,14 @@ def homepage():
         FROM friendships
         WHERE creator_id = ? OR recipient_id = ?
         ORDER BY time_created DESC
-        """,
-        (user_id, user_id, user_id)
-    ).fetchall()
+    """, (user_id, user_id, user_id)).fetchall()
 
     conn.close()
 
     # Debug: Print connections
     print("Connections:", [dict(row) for row in connections])
 
-    return render_template("friendship_homepage.html", connections=connections, updates = updates)
-
+    return render_template("friendship_homepage.html", connections=connections, updates=updates)
 
 #Redirect to friendship_hub per the unique connection id from person
 
@@ -431,7 +453,7 @@ def add_milestone(connection_id):
             conn.execute("""
                 INSERT INTO updates (user_id, action, connection_id)
                 VALUES (?, ?, ?)
-                """, (user_id, f"created a new milestone "{milestone_text}."", connection_id))
+                """, (user_id, f"created a new milestone \"{milestone_text}\".", connection_id))
            # -----------------------------------------------------------
         flash("Milestone added successfully!", "success")
     except sqlite3.Error as e:
@@ -618,6 +640,85 @@ def send_message(connection_id):
         conn.close()
 
     return redirect(url_for("friendship_hub", connection_id=connection_id))
+
+
+@app.route("/api/recent-updates")
+@login_required
+def get_recent_updates():
+    conn = get_db_connection()
+    user_id = session["user_id"]
+
+    # Get the friendship IDs for the logged-in user
+    friendships = conn.execute("""
+        SELECT f.id, f.time_created
+        FROM friendships f
+        WHERE f.creator_id = ? OR f.recipient_id = ?
+    """, (user_id, user_id)).fetchall()
+
+    # Extract the friendship IDs and their creation times
+    friendship_ids = [f["id"] for f in friendships]
+    friendship_times = {f["id"]: f["time_created"] for f in friendships}
+
+    # Get updates only from friends and after the time the connection was created
+# Dynamically create placeholders for the IN clause based on the number of friendship_ids
+    placeholders = ','.join(['?'] * len(friendship_ids))
+
+    # Construct the query with the dynamically created placeholders
+    query = f"""
+        SELECT u.action, u.timestamp, u.user_id, us.username
+        FROM updates u
+        JOIN users us ON u.user_id = us.id
+        WHERE u.user_id != ? AND u.connection_id IN ({placeholders})
+        ORDER BY u.timestamp DESC
+        LIMIT 10
+    """
+
+    # Bind the parameters: first is user_id, followed by all friendship_ids
+    bindings = [user_id] + friendship_ids  # First item is user_id, rest are friendship_ids
+
+    # Execute the query with the parameters
+    updates = conn.execute(query, bindings).fetchall()
+
+    # Debugging output
+    print("Query Result:", updates)
+
+
+    conn.close()
+
+    # Return the updates as a JSON response
+    return jsonify([{
+        'name': update['username'],
+        'action': update['action'],
+        'timestamp': update['timestamp']
+    } for update in updates])
+
+@app.route("/api/get-connections")
+@login_required
+def get_connections():
+    conn = get_db_connection()
+    user_id = session["user_id"]
+
+    # Query friendships for the logged-in user, ordered by creation time
+    connections = conn.execute(
+        """
+        SELECT id, 
+               CASE WHEN creator_id = ? THEN recipient_username ELSE creator_username END AS name,
+               time_created 
+        FROM friendships
+        WHERE creator_id = ? OR recipient_id = ?
+        ORDER BY time_created DESC
+        """,
+        (user_id, user_id, user_id)
+    ).fetchall()
+
+    conn.close()
+
+    # Return connections as JSON
+    return jsonify([{
+        'id': connection['id'],
+        'name': connection['name'],
+        'time_created': connection['time_created']
+    } for connection in connections])
 
 
 conn = get_db_connection()
