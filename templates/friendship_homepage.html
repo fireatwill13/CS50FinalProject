@@ -198,30 +198,46 @@
 
                 // Fetch and Display Recent Updates
                 function loadRecentUpdates() {
-                    fetch("/api/recent-updates")
-                        .then((response) => response.json())
-                        .then((updates) => {
-                            const updatesContainer = document.getElementById("updates-container");
-                            updatesContainer.innerHTML = ""; // Clear placeholder text
+    fetch("/api/recent-updates")
+        .then((response) => response.json())
+        .then((updates) => {
+            const updatesContainer = document.getElementById("updates-container");
+            updatesContainer.innerHTML = ""; // Clear placeholder text
 
-                            if (updates.length === 0) {
-                                updatesContainer.innerHTML = '<p class="text-muted text-center">No recent updates.</p>';
-                            } else {
-                                updates.forEach((update) => {
-                                    const updateElement = document.createElement("div");
-                                    updateElement.className = "d-flex justify-content-between align-items-start mb-2";
-                                    updateElement.innerHTML = `
-                            <span><strong>${update.name}:</strong> ${update.action}</span>
-                            <small class="text-muted">${new Date(update.timestamp).toLocaleString()}</small>
-                        `;
-                                    updatesContainer.appendChild(updateElement);
-                                });
-                            }
-                        })
-                        .catch((error) => {
-                            console.error("Error loading updates:", error);
-                        });
-                }
+            if (updates.length === 0) {
+                updatesContainer.innerHTML = '<p class="text-muted text-center">No recent updates.</p>';
+            } else {
+                updates.forEach((update) => {
+                    const updateElement = document.createElement("div");
+                    updateElement.className = "d-flex justify-content-between align-items-start mb-2";
+
+                    // Convert UTC timestamp to recipient's timezone
+                    const utcDate = new Date(update.timestamp);
+                    const options = {
+                        timeZone: update.recipient_time_zone,
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour12: true
+                    };
+                    const localTime = new Intl.DateTimeFormat("en-US", options).format(utcDate);
+
+                    updateElement.innerHTML = `
+                        <span><strong>${update.name}:</strong> ${update.action}</span>
+                        <small class="text-muted">${localTime}</small>
+                    `;
+                    updatesContainer.appendChild(updateElement);
+                });
+            }
+        })
+        .catch((error) => {
+            console.error("Error loading updates:", error);
+        });
+}
+
 // Clock Script
 document.addEventListener('DOMContentLoaded', () => {
     // Function to update the clock for the user
