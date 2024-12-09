@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import json
+import pytz
 def get_db_connection():
     conn = sqlite3.connect("data.db")
     conn.row_factory = sqlite3.Row
@@ -907,15 +908,12 @@ def get_recent_updates():
 
     # Extract the friendship IDs and their creation times
     friendship_ids = [f["id"] for f in friendships]
-    friendship_times = {f["id"]: f["time_created"] for f in friendships}
 
     # Get updates only from friends and after the time the connection was created
-# Dynamically create placeholders for the IN clause based on the number of friendship_ids
     placeholders = ','.join(['?'] * len(friendship_ids))
 
-    # Construct the query with the dynamically created placeholders
     query = f"""
-        SELECT u.action, u.timestamp, u.user_id, us.username
+        SELECT u.action, u.timestamp, u.user_id, us.username, u.connection_id
         FROM updates u
         JOIN users us ON u.user_id = us.id
         WHERE u.user_id != ? AND u.connection_id IN ({placeholders})
@@ -923,24 +921,55 @@ def get_recent_updates():
         LIMIT 10
     """
 
-    # Bind the parameters: first is user_id, followed by all friendship_ids
-    bindings = [user_id] + friendship_ids  # First item is user_id, rest are friendship_ids
-
-    # Execute the query with the parameters
+    bindings = [user_id] + friendship_ids
     updates = conn.execute(query, bindings).fetchall()
 
-    # Debugging output
-    print("Query Result:", updates)
+    # Fetch the recipient's time zone for each update
+    recipient_time_zones = {}
+    for update in updates:
+        connection_id = update["connection_id"]
+        recipient_id_query = conn.execute("""
+            SELECT creator_id, recipient_id
+            FROM friendships
+            WHERE id = ?
+        """, (connection_id,)).fetchone()
 
+        # Determine the recipient's ID (the user who is not the current logged-in user)
+        if recipient_id_query["creator_id"] == user_id:
+            recipient_id = recipient_id_query["recipient_id"]
+        else:
+            recipient_id = recipient_id_query["creator_id"]
+
+        # Fetch the recipient's time zone
+        recipient_time_zone = conn.execute("""
+            SELECT timezone
+            FROM users
+            WHERE id = ?
+        """, (recipient_id,)).fetchone()["timezone"]
+
+        # Map the GMT offsets to IANA time zones if necessary
+        if recipient_time_zone.startswith('GMT'):
+            recipient_time_zone = timezone_mapping.get(recipient_time_zone, 'UTC')
+
+        recipient_time_zones[connection_id] = recipient_time_zone
+
+    # Format the timestamp in the recipient's time zone
+    formatted_updates = []
+    for update in updates:
+        recipient_time_zone = recipient_time_zones.get(update["connection_id"])
+
+        # Pass the recipient's time zone to the frontend
+        formatted_updates.append({
+            'name': update['username'],
+            'action': update['action'],
+            'timestamp': update['timestamp'],  # Pass raw timestamp for conversion
+            'recipient_time_zone': recipient_time_zone  # Pass recipient's time zone
+        })
 
     conn.close()
+    print(formatted_updates)
 
-    # Return the updates as a JSON response
-    return jsonify([{
-        'name': update['username'],
-        'action': update['action'],
-        'timestamp': update['timestamp']
-    } for update in updates])
+    return jsonify(formatted_updates)
 
 @app.route("/api/get-connections")
 @login_required
