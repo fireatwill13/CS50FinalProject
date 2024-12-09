@@ -2,6 +2,8 @@
 
 **Continental Central** is a web-based application designed to organize personal connections. The platform allows users to track and create friendships, chat in real time, share achievements, and explore different cultures related to their friends’ locations. This document outlines the overall structure and implementation rationale that go behind the making of this application.
 
+GitHub Link: https://github.com/fireatwill13/CS50FinalProject.git
+
 Video Link: https://www.youtube.com/watch?v=m7D7CWBrB9k
 
 
