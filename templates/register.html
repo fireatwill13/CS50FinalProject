@@ -1,138 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Friendship Manager - Register</title>
-    <link rel="stylesheet" href="/static/styles_register.css">
-    <style>
-        /* Ensure scrolling is enabled */
-        body, html {
-            overflow-y: auto;
-            height: auto;
-        }
-    </style>
-</head>
-<body>
-    <div class="background"></div>
-    <div class="container">
-        <h1 class="typewriter">✨Continental Central✨</h1>
-        <div class="register-box">
-            <h2>Register</h2>
-            <form method="POST">
-                <input type="text" name = "first_name"placeholder="First Name" required>
-                <input type="text" name = "last_name" placeholder="Last Name" required>
-                <!-- Username Field -->
-                <input type="text" name="username" placeholder="Username" required>
-                {% if username_error %}
-                <p class="error">{{ username_error }}</p>
-                {% endif %}
 
-                <!-- Email Field -->
-                <input type="email" name="email" placeholder="Email" required>
-                {% if email_error %}
-                <p class="error">{{ email_error }}</p>
-                {% endif %}
-                <!-- Password Fields -->
-                <input type="password" name="pw" placeholder="Password" required>
-                <input type="password" name="confirm_pw" placeholder="Confirm Password" required>
-                {% if password_error %}
-                <p class="error">{{ password_error }}</p> 
-                {% endif %}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Friendship Manager - Register</title>
+        <link rel="stylesheet" href="/static/styles_register.css">
+        <style>
+            /* Ensure scrolling is enabled */
+            body,
+            html {
+                overflow-y: auto;
+                height: auto;
+            }
+        </style>
+    </head>
 
-                <!-- Time Zone Dropdown -->
-                <div class="mb-3">
-                    <label for="timezoneDropdown" class="form-label">Time Zone</label>
-                    <select class="form-select" id="timezoneDropdown" name = "timezone" required>
-                        <option value="" disabled selected>Select Time Zone</option>
-                        <option value="GMT+0">GMT+0 (Greenwich Mean Time)</option>
-                        <option value="GMT+1">GMT+1 (Central European Time)</option>
-                        <option value="GMT+2">GMT+2 (Eastern European Time)</option>
-                        <option value="GMT+3">GMT+3 (Moscow Time)</option>
-                        <option value="GMT+4">GMT+4 (Armenia Time)</option>
-                        <option value="GMT+5">GMT+5 (Pakistan Standard Time)</option>
-                        <option value="GMT+6">GMT+6 (Omsk Time)</option>
-                        <option value="GMT+7">GMT+7 (Krasnoyarsk Time)</option>
-                        <option value="GMT+8">GMT+8 (China Standard Time)</option>
-                        <option value="GMT+9">GMT+9 (Japan Standard Time)</option>
-                        <option value="GMT+10">GMT+10 (Eastern Australia Standard Time)</option>
-                        <option value="GMT+11">GMT+11 (Sakhalin Time)</option>
-                        <option value="GMT+12">GMT+12 (New Zealand Standard Time)</option>
-                        <option value="GMT-1">GMT-1 (West Africa Time)</option>
-                        <option value="GMT-2">GMT-2 (Azores Time)</option>
-                        <option value="GMT-3">GMT-3 (Argentina Time)</option>
-                        <option value="GMT-4">GMT-4 (Atlantic Standard Time)</option>
-                        <option value="GMT-5">GMT-5 (Eastern Standard Time)</option>
-                        <option value="GMT-6">GMT-6 (Central Standard Time)</option>
-                        <option value="GMT-7">GMT-7 (Mountain Standard Time)</option>
-                        <option value="GMT-8">GMT-8 (Pacific Standard Time)</option>
-                        <option value="GMT-9">GMT-9 (Alaska Standard Time)</option>
-                        <option value="GMT-10">GMT-10 (Hawaii Standard Time)</option>
-                        <option value="GMT-11">GMT-11 (Nome Time)</option>
-                        <option value="GMT-12">GMT-12 (International Date Line West)</option> 
-                    </select>
-                </div>
+    <body>
+        <div class="background"></div>
+        <div class="container">
+            <h1 class="typewriter">✨Continental Central✨</h1>
+            <div class="register-box">
+                <h2>Register</h2>
+                <form method="POST">
+                    <input type="text" name="first_name" placeholder="First Name" required>
+                    <input type="text" name="last_name" placeholder="Last Name" required>
+                    <!-- Username Field -->
+                    <input type="text" name="username" placeholder="Username" required>
+                    {% if username_error %}
+                        <p class="error">{{ username_error }}</p>
+                    {% endif %}
 
-                <!-- Country Dropdown -->
-                <div class="mb-3">
-                    <label for="countryDropdown" class="form-label">Country</label>
-                    <select class="form-select" id="countryDropdown" name = "location" required>
-                        <option selected disabled value="">Select Country</option>
-                    </select>
-                </div>
+                    <!-- Email Field -->
+                    <input type="email" name="email" placeholder="Email" required>
+                    {% if email_error %}
+                        <p class="error">{{ email_error }}</p>
+                    {% endif %}
+                    <!-- Password Fields -->
+                    <input type="password" name="pw" placeholder="Password" required>
+                    <input type="password" name="confirm_pw" placeholder="Confirm Password" required>
+                    {% if password_error %}
+                        <p class="error">{{ password_error }}</p>
+                    {% endif %}
 
-                <!-- Google Translate Widget -->
-                <div class="mb-3">
-                    <label class="form-label">Translate Page</label>
-                    <div id="google_translate_element"></div>
-                </div>
+                    <!-- Time Zone Dropdown -->
+                    <div class="mb-3">
+                        <label for="timezoneDropdown" class="form-label">Time Zone</label>
+                        <select class="form-select" id="timezoneDropdown" name="timezone" required>
+                            <option value="" disabled selected>Select Time Zone</option>
+                            <option value="GMT+0">GMT+0 (Greenwich Mean Time)</option>
+                            <option value="GMT+1">GMT+1 (Central European Time)</option>
+                            <option value="GMT+2">GMT+2 (Eastern European Time)</option>
+                            <option value="GMT+3">GMT+3 (Moscow Time)</option>
+                            <option value="GMT+4">GMT+4 (Armenia Time)</option>
+                            <option value="GMT+5">GMT+5 (Pakistan Standard Time)</option>
+                            <option value="GMT+6">GMT+6 (Omsk Time)</option>
+                            <option value="GMT+7">GMT+7 (Krasnoyarsk Time)</option>
+                            <option value="GMT+8">GMT+8 (China Standard Time)</option>
+                            <option value="GMT+9">GMT+9 (Japan Standard Time)</option>
+                            <option value="GMT+10">GMT+10 (Eastern Australia Standard Time)</option>
+                            <option value="GMT+11">GMT+11 (Sakhalin Time)</option>
+                            <option value="GMT+12">GMT+12 (New Zealand Standard Time)</option>
+                            <option value="GMT-1">GMT-1 (West Africa Time)</option>
+                            <option value="GMT-2">GMT-2 (Azores Time)</option>
+                            <option value="GMT-3">GMT-3 (Argentina Time)</option>
+                            <option value="GMT-4">GMT-4 (Atlantic Standard Time)</option>
+                            <option value="GMT-5">GMT-5 (Eastern Standard Time)</option>
+                            <option value="GMT-6">GMT-6 (Central Standard Time)</option>
+                            <option value="GMT-7">GMT-7 (Mountain Standard Time)</option>
+                            <option value="GMT-8">GMT-8 (Pacific Standard Time)</option>
+                            <option value="GMT-9">GMT-9 (Alaska Standard Time)</option>
+                            <option value="GMT-10">GMT-10 (Hawaii Standard Time)</option>
+                            <option value="GMT-11">GMT-11 (Nome Time)</option>
+                            <option value="GMT-12">GMT-12 (International Date Line West)</option>
+                        </select>
+                    </div>
 
-                <!-- Birthday Selection -->
-                <div class="mb-3">
-                    <label for="birthdayInput" class="form-label">Birthday</label>
-                    <input type="date" id="birthdayInput" name="birthday" class="form-control" required>
-                </div>
+                    <!-- Country Dropdown -->
+                    <div class="mb-3">
+                        <label for="countryDropdown" class="form-label">Country</label>
+                        <select class="form-select" id="countryDropdown" name="location" required>
+                            <option selected disabled value="">Select Country</option>
+                        </select>
+                    </div>
 
-                <button type="submit">Register</button>
-            </form>
-            <p>Already have an account? <a href="/login">Log in</a></p>
+                    <!-- Google Translate Widget -->
+                    <div class="mb-3">
+                        <label class="form-label">Translate Page</label>
+                        <div id="google_translate_element"></div>
+                    </div>
+
+                    <!-- Birthday Selection -->
+                    <div class="mb-3">
+                        <label for="birthdayInput" class="form-label">Birthday</label>
+                        <input type="date" id="birthdayInput" name="birthday" class="form-control" required>
+                    </div>
+
+                    <button type="submit">Register</button>
+                </form>
+                <p>Already have an account? <a href="/login">Log in</a></p>
+            </div>
         </div>
-    </div>
-</body>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const countryDropdown = document.getElementById('countryDropdown');
+    </body>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const countryDropdown = document.getElementById('countryDropdown');
 
-    // Fetch country data from REST Countries API
-    fetch('https://restcountries.com/v3.1/all')
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            return response.json();
-        })
-        .then(data => {
-            data.sort((a, b) => (a.name?.common || '').localeCompare(b.name?.common || '')); // Sort alphabetically
-            data.forEach(country => {
-                const option = document.createElement('option');
-                option.value = country.cca2; // ISO 3166-1 alpha-2 code
-                option.textContent = country.name.common; // Country name
-                countryDropdown.appendChild(option);
-            });
-        })
-        .catch(error => console.error('Error fetching countries:', error));
-});
-</script>
-<!-- Google Translate Script -->
-<script type="text/javascript">
-    function googleTranslateElementInit() {
-        new google.translate.TranslateElement(
-            {
+            // Fetch country data from REST Countries API
+            fetch('https://restcountries.com/v3.1/all')
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    data.sort((a, b) => (a.name?.common || '').localeCompare(b.name?.common || '')); // Sort alphabetically
+                    data.forEach(country => {
+                        const option = document.createElement('option');
+                        option.value = country.cca2; // ISO 3166-1 alpha-2 code
+                        option.textContent = country.name.common; // Country name
+                        countryDropdown.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching countries:', error));
+        });
+    </script>
+    <!-- Google Translate Script -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
                 pageLanguage: 'en',
                 includedLanguages: 'en,fr,de,es',
                 autoDisplay: true
             },
-            'google_translate_element'
-        );
-    }
-</script>
-<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+                'google_translate_element'
+            );
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
 </html>

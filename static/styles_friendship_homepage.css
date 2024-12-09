@@ -36,15 +36,21 @@ body {
 }
 
 .navbar-brand {
-    font-family: 'Poppins', sans-serif; /* Match the login & register page font */
-    font-size: 2rem; /* Match the size */
+    font-family: 'Poppins', sans-serif;
+    /* Match the login & register page font */
+    font-size: 2rem;
+    /* Match the size */
     font-weight: bold;
-    color: #f73105; /* Coral color from login & register pages */
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15); /* Subtle shadow for emphasis */
+    color: #f73105;
+    /* Coral color from login & register pages */
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15);
+    /* Subtle shadow for emphasis */
     text-align: center;
-    white-space: nowrap; /* Prevent wrapping */
+    white-space: nowrap;
+    /* Prevent wrapping */
     overflow: hidden;
-    border-right: 3px solid #f73105; /* Typing effect border */
+    border-right: 3px solid #f73105;
+    /* Typing effect border */
     width: fit-content;
     animation: typing 3s;
 }
@@ -86,23 +92,23 @@ body {
 
 /* Map Styling */
 #map {
-    height: 100%; /* Make the map fill the container height */
-    width: 100%; /* Make the map fill the container width */
-    border-radius: 8px; /* Optional: Add rounded corners */
-    overflow: hidden; /* Prevent overflow */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for aesthetics */
+    height: 100%;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .leaflet-layer {
     position: absolute;
     left: 0;
     top: 0;
-    }
+}
 
 .leaflet-container {
     width: 100%;
     height: 100vh;
-    }
+}
 
 /* Sidebar Cards */
 .card {
@@ -255,7 +261,8 @@ footer {
     font-size: 1em;
     font-weight: normal;
     text-align: center;
-    background-color: #004d73; /* Matches the theme color */
+    background-color: #004d73;
+    /* Matches the theme color */
     color: white;
 }
 
