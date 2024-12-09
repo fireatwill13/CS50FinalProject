@@ -1,9 +1,109 @@
-# Friendship Hub
+# Continental Central
 
-**Friendship Manager** is a web-based application designed to organize personal connections. The platform allows users to track and create friendships, chat in real time, share achievements, and explore different cultures related to their friends’ locations. This document outlines the overall structure and implementation rationale that go behind the making of this application.
+**Continental Central** is a web-based application designed to organize personal connections. The platform allows users to track and create friendships, chat in real time, share achievements, and explore different cultures related to their friends’ locations. This document outlines the overall structure and implementation rationale that go behind the making of this application.
+
+Video Link: https://www.youtube.com/watch?v=m7D7CWBrB9k
 
 
 ---
+
+Prerequisites
+-------------
+
+Make sure you have the following installed on your system:
+
+-   **Python 3.0 or later**
+
+    -   [Download Python](https://www.python.org/downloads/)
+-   **pip3 (Python Package Installer)**
+
+    -   Comes pre-installed with Python. If not, follow [this guide](https://pip.pypa.io/en/stable/installation/).
+
+* * * * *
+
+Required Libraries and Modules
+------------------------------
+
+The following libraries and modules are used in the project. Use the commands provided to install them.
+
+### Built-in Python Modules
+
+These modules come pre-installed with Python and require no additional action:
+
+-   `os`
+-   `sqlite3`
+-   `json`
+-   `datetime`
+
+* * * * *
+
+### Third-party Libraries
+
+Install the following dependencies:
+
+1.  **Flask**
+
+    -   Framework for building web applications.
+
+    `pip install Flask`
+
+2.  **Flask-Session**
+
+    -   Enables server-side session management.
+
+    `pip install Flask-Session`
+
+3.  **Werkzeug**
+
+    -   Provides utilities like password hashing and file security.
+
+    `pip install Werkzeug`
+
+4.  **pytz**
+
+    -   Handles time zones.
+
+    `pip install pytz`
+
+* * * * *
+
+Installation Instructions
+-------------------------
+
+1.  Clone the Repository:
+
+    `git clone https://github.com/your-username/friendship-hub.git
+    cd friendship-hub`
+
+2.  Create a Virtual Environment (Optional but Recommended):
+
+    `python -m venv venv
+    source venv/bin/activate   # For macOS/Linux
+    venv\Scripts\activate      # For Windows`
+
+3.  Install Dependencies: Use the provided `requirements.txt` file to install all required libraries.
+
+    `pip install -r requirements.txt`
+
+    If `requirements.txt` is not available, manually install the libraries as outlined above.
+
+4.  Create the Database: Use the provided database schema or initialize the database file:
+
+    `sqlite3 data.db < schema.sql`
+
+    If `schema.sql` is not available, ensure a `data.db` file exists, and your application handles table creation on first run.
+
+5.  Run the Application: Start the Flask development server:
+
+    `flask run`
+
+6.  Access the Application: Open your browser and navigate to:
+
+    `http://127.0.0.1:5000`
+
+**1. If the program returns an error, it is likely because a required program is not installed.**
+
+**2. You might get an libSSL warning, just click ignore warning to bypass it**
 
 ## Features
 

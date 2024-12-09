@@ -1,14 +1,14 @@
-Friendship Manager
+Continental Central
 ----------------
 
-**Friendship Manager** is a web-based application designed to organize personal connections. The platform allows users to track and create friendships, chat in real time, share achievements, and explore different cultures related to their friends' locations. This document outlines the overall structure and implementation rationale that go behind the making of this application.
+**Continental Central** is a web-based application designed to organize personal connections. The platform allows users to track and create friendships, chat in real time, share achievements, and explore different cultures related to their friends' locations. This document outlines the overall structure and implementation rationale that go behind the making of this application.
 
 * * * * *
 
 Structure
 ---------
 
-Friendship Manager is a full-stack web application using Python with Flask as the backend framework, HTML/CSS/JavaScript for the front end, and SQLite for persistent data storage. The application follows a modular design, which distinguishes between authentication, data management, and the user interface.
+Continental Central is a full-stack web application using Python with Flask as the backend framework, HTML/CSS/JavaScript for the front end, and SQLite for persistent data storage. The application follows a modular design, which distinguishes between authentication, data management, and the user interface.
 
 Authentication: Manages user registration, login, and session handling.
 
@@ -52,7 +52,7 @@ User Interface: Provides a responsive design for real-time interaction.
 
 ### Frontend
 
-1.  HTML Templates
+1.  **HTML Templates**
 
 -   friendship_homepage.html, friendship_hub.html, , and register.html make up the modular front-end components:
 
@@ -64,11 +64,11 @@ User Interface: Provides a responsive design for real-time interaction.
 
 -   friendship_hub.html displays the users' current time and location, milestones with their friends, as well as photos and calendar events shared with their friends. It also includes a text interface and a cultural information section that allows users to learn about their friend's culture. 
 
-1.  CSS
+1.  **CSS**
 
 -   Custom styling is applied using linked CSS files (/static/styles.css) to enhance the visual appeal. Bootstrap 5.3 is integrated for responsive and consistent design.
 
-3.  JavaScript
+3.  **JavaScript**
 
 -   Real-time interactions are managed using JavaScript, including:
 
@@ -79,6 +79,14 @@ User Interface: Provides a responsive design for real-time interaction.
 -   Dynamic map interactions using Leaflet.js and OpenStreetMap tiles.
 
 -   Chat functionality that handles asynchronous message sending and receiving.
+
+4. **API**
+
+- **Google Map API** is used to pinpoint user location on a real-time basis.
+
+- **Wikipedia API & REST Countries API** are used to fetch cultural information about specfic countries to generate a brief introduction to that country.
+
+- **Google Translate API** is implemented to translate all webpages into different languages, in order to suit the demand of the users. 
 
 * * * * *
 
@@ -152,7 +160,7 @@ User Interface: Provides a responsive design for real-time interaction.
 
 3.  Mobile Application
 
--   Creating a mobile app version of the Friendship Manager using a framework like Flutter.
+-   Creating a mobile app version of the Continental Central using a framework like Flutter.
 
 5.  Enhanced Analytics
 
