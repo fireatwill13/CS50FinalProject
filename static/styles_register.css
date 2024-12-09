@@ -8,6 +8,7 @@
 body {
     font-family: 'Poppins', sans-serif;
     min-height: 100vh;
+    min-width: 100vw;
     background-image: url('image1.jpg');
     background-repeat: no-repeat;
     background-size: cover; /* Ensure the image covers the container */
