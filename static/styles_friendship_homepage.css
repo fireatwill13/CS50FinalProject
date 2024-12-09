@@ -1,3 +1,5 @@
+@import '~leaflet/dist/leaflet.css';
+
 /* General Styling */
 body {
     font-family: 'Poppins', sans-serif;
@@ -227,4 +229,35 @@ footer {
         padding: 8px 15px;
         font-size: 0.9rem;
     }
+}
+/* Map Styling */
+#map {
+    height: 100%; /* Make the map fill the container height */
+    width: 100%; /* Make the map fill the container width */
+    border-radius: 8px; /* Optional: Add rounded corners */
+    overflow: hidden; /* Prevent overflow */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for aesthetics */
+}
+
+.leaflet-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    }
+
+.leaflet-container {
+    width: 100%;
+    height: 60vh;
+    }
+
+.card-header {
+    font-size: 1em;
+    font-weight: normal;
+    text-align: center;
+    background-color: #004d73; /* Matches the theme color */
+    color: white;
+}
+
+.card-body {
+    padding: 20px;
 }
